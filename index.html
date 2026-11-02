@@ -418,6 +418,15 @@ button{min-height:40px}
  <div class="brand-block"><h1>RiskLedger</h1><div class="sub">DISCIPLINE OVER EMOTION. EVERY TRADE HAS A PURPOSE.</div></div>
  <div class="topstats"><div><div class="sub">TOTAL TRADES</div><div class="v" id="topTrades">0</div></div><div><div class="sub">WIN RATE</div><div class="v" id="topWin">—</div></div><div><div class="sub">DAILY P&amp;L · TODAY</div><div class="v" id="topDailyPnl">$0.00</div></div><div><div class="sub">NET P&amp;L · SELECTED PERIOD</div><div class="v" id="topPnl">$0.00</div></div></div>
 </header>
+<div class="panel" id="authPanel" style="margin-top:14px">
+ <div class="between" style="align-items:center;gap:12px;flex-wrap:wrap"><div><div class="section">Cloud account</div><div class="muted" id="authState">Sign in or create an account to use RiskLedger across devices.</div></div><button id="signOut" type="button" style="display:none">Sign out</button></div>
+ <div class="grid g2" id="authFields" style="margin-top:10px;max-width:680px">
+  <div class="field"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="username" placeholder="you@example.com"></div>
+  <div class="field"><label for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="At least 8 characters"></div>
+ </div>
+ <div class="row" id="authActions" style="margin-top:10px"><button class="primary" id="signIn" type="button">Sign in</button><button id="signUp" type="button">Create account</button></div>
+ <div id="authMessage" class="muted" style="margin-top:8px" aria-live="polite"></div>
+</div>
 <nav class="tabs" id="tabs">
 <button class="active" data-tab="dashboard">Overview</button><button data-tab="strategy">Strategy Rules</button><button data-tab="portfolio">Money Management</button><button data-tab="journal">Add / View Trades</button><button data-tab="pairs">Asset Performance</button><button data-tab="reentry">Attempt Analysis</button><button data-tab="risk">Equity &amp; Risk</button><button data-tab="backtest">Backtest Settings</button>
 </nav>
@@ -573,6 +582,7 @@ button{min-height:40px}
 <div class="note">Educational backtesting tool, not a broker or execution platform. Historical performance does not guarantee future results. XAUUSD defaults to 0.01, BTCUSDT to 1.00 and OIL to 0.01 as price increments per pip/tick. These are starting conventions only: verify your broker's contract size, tick size, pip value and transaction costs before relying on P&L.</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (()=>{
 const root=document.getElementById('app');const $=id=>document.getElementById(id);if(!root){document.body.innerHTML='<p style="font:16px Arial;padding:24px">Green Light Setup could not find its application container. Please download the HTML file again.</p>';return;}const KEY='green_light_setup_trades_v1';const SETTINGS_KEY='green_light_setup_settings_v1';let riskPerTrade=15,initialCapital=0;const MAX_ATTEMPTS_PER_ASSET=4;
@@ -595,10 +605,52 @@ function validInstrumentPrice(value,price){
  if(/^[A-Z]{6}$/.test(pair))return price>=0.1&&price<=10;
  return true;
 }
-function load(){try{const raw=localStorage.getItem(KEY),x=raw?JSON.parse(raw):[];trades=Array.isArray(x)?x.filter(t=>t&&typeof t==='object').map((t,i)=>({...t,id:t.id||('legacy-'+i+'-'+Date.now()),pair:String(t.pair||'Other').toUpperCase(),direction:t.direction==='SELL'?'SELL':'BUY',attempt:Number(t.attempt)||1,date:String(t.date||new Date().toLocaleDateString('en-CA')),entry:Number(t.entry)||0,exit:Number(t.exit)||0,sl:Number(t.sl)||10,rr:Number(t.rr)||2,lots:Number(t.lots)||0,pipValue:Number(t.pipValue)||0,cost:Number(t.cost)||0,pipSize:Number(t.pipSize)||pipSize(t.pair)})):[];$('storageStatus').textContent='Browser storage active · '+trades.length+' saved trade(s).'}catch(e){trades=[];$('storageStatus').textContent='Saved data could not be read. The application has opened with an empty journal. Restore a valid JSON backup if available.'}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(trades));$('storageStatus').textContent='Saved in this browser · '+trades.length+' trade(s).';return true}catch(e){$('storageStatus').textContent='Save failed: '+(e&&e.name==='QuotaExceededError'?'browser storage is full. Download a JSON backup and clear old browser data only after backing it up.':'browser storage is blocked or unavailable. Open this HTML file in Chrome/Edge and allow local storage.');return false}}
+let currentUser=null,cloudReady=false,cloudSyncBusy=false;
+const SUPABASE_URL='https://eijlcvwsnrirqwrauvcx.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpamxjdndzbnJpcnF3cmF1dmN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MjYzOTgsImV4cCI6MjEwOTIwMjM5OH0.Uqh0F60G-Jg2wnJZsGApuCAXzmQe5hipUk4-OCmeYbI';
+const cloud=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+function authMessage(message,isError=false){const el=$('authMessage');if(el){el.textContent=message;el.style.color=isError?'#ff8b8b':'#9fc7ee';}}
+function setCloudStatus(message){const el=$('storageStatus');if(el)el.textContent=message;}
+function load(){trades=[];setCloudStatus('Sign in to load your online trading journal.');}
+async function syncTradesToCloud(){
+ if(!currentUser||cloudSyncBusy)return false;cloudSyncBusy=true;
+ try{
+  const existing=await cloud.from('trade_records').select('trade_id').eq('user_id',currentUser.id);
+  if(existing.error)throw existing.error;
+  if(trades.length){
+   const rows=trades.map(t=>({user_id:currentUser.id,trade_id:String(t.id),trade_data:t,updated_at:new Date().toISOString()}));
+   const up=await cloud.from('trade_records').upsert(rows,{onConflict:'user_id,trade_id'});if(up.error)throw up.error;
+  }
+  const keep=new Set(trades.map(t=>String(t.id)));
+  const remove=(existing.data||[]).map(x=>x.trade_id).filter(id=>!keep.has(String(id)));
+  if(remove.length){const del=await cloud.from('trade_records').delete().eq('user_id',currentUser.id).in('trade_id',remove);if(del.error)throw del.error;}
+  setCloudStatus('Cloud database synced · '+trades.length+' trade(s).');return true;
+ }catch(e){setCloudStatus('Cloud sync failed: '+(e.message||'Check database policies and connection.'));return false;}
+ finally{cloudSyncBusy=false;}
+}
+async function save(){
+ if(!currentUser){setCloudStatus('Sign in before saving trades to the cloud.');authMessage('Please sign in to save your trades.',true);return false;}
+ try{localStorage.setItem(KEY,JSON.stringify(trades));}catch(e){}
+ setCloudStatus('Saving '+trades.length+' trade(s) to Supabase…');return await syncTradesToCloud();
+}
+async function loadCloudData(){
+ if(!currentUser)return;
+ setCloudStatus('Loading your cloud journal…');
+ try{
+  const [tradeRes,settingsRes]=await Promise.all([
+   cloud.from('trade_records').select('trade_id,trade_data').eq('user_id',currentUser.id).order('created_at',{ascending:true}),
+   cloud.from('user_settings').select('risk_per_trade,initial_capital').eq('user_id',currentUser.id).maybeSingle()
+  ]);
+  if(tradeRes.error)throw tradeRes.error;if(settingsRes.error)throw settingsRes.error;
+  trades=(tradeRes.data||[]).map(x=>({...x.trade_data,id:x.trade_id}));
+  if(settingsRes.data){riskPerTrade=Number(settingsRes.data.risk_per_trade)||15;initialCapital=Number(settingsRes.data.initial_capital)||0;}
+  $('initialCapitalInput').value=initialCapital||'';$('riskPerTradeInput').value=riskPerTrade;
+  try{localStorage.setItem(KEY,JSON.stringify(trades));localStorage.setItem(SETTINGS_KEY,JSON.stringify({riskPerTrade,initialCapital}));}catch(e){}
+  cloudReady=true;setCloudStatus('Connected to Supabase · '+trades.length+' online trade(s).');refresh();preview();
+ }catch(e){cloudReady=false;setCloudStatus('Could not load cloud data: '+(e.message||'Check table names and Row Level Security.'));authMessage('Database connection error: '+(e.message||'Please check your Supabase setup.'),true);}
+}
 function loadSettings(){try{const x=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');if(Number.isFinite(Number(x.riskPerTrade))&&Number(x.riskPerTrade)>0)riskPerTrade=Number(x.riskPerTrade);if(Number.isFinite(Number(x.initialCapital))&&Number(x.initialCapital)>=0)initialCapital=Number(x.initialCapital);}catch(e){}$('initialCapitalInput').value=initialCapital||'';$('riskPerTradeInput').value=riskPerTrade;}
-function saveSettings(){const capital=Number(val('initialCapitalInput')),risk=Number(val('riskPerTradeInput'));if(!Number.isFinite(capital)||capital<0||!Number.isFinite(risk)||risk<=0){put('settingsMsg','Enter initial capital of zero or more and risk per trade greater than zero.');return;}const old={initialCapital,riskPerTrade};initialCapital=capital;riskPerTrade=risk;try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({initialCapital,riskPerTrade}));put('settingsMsg','Settings saved in this browser.');preview();refresh();}catch(e){initialCapital=old.initialCapital;riskPerTrade=old.riskPerTrade;put('settingsMsg','Could not save settings. Check browser storage permissions.');}}
+async function saveSettings(){const capital=Number(val('initialCapitalInput')),risk=Number(val('riskPerTradeInput'));if(!Number.isFinite(capital)||capital<0||!Number.isFinite(risk)||risk<=0){put('settingsMsg','Enter initial capital of zero or more and risk per trade greater than zero.');return;}if(!currentUser){put('settingsMsg','Sign in before saving settings online.');return;}const old={initialCapital,riskPerTrade};initialCapital=capital;riskPerTrade=risk;try{const result=await cloud.from('user_settings').upsert({user_id:currentUser.id,initial_capital:initialCapital,risk_per_trade:riskPerTrade,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(result.error)throw result.error;localStorage.setItem(SETTINGS_KEY,JSON.stringify({initialCapital,riskPerTrade}));put('settingsMsg','Settings saved securely to Supabase.');preview();refresh();}catch(e){initialCapital=old.initialCapital;riskPerTrade=old.riskPerTrade;put('settingsMsg','Cloud settings save failed: '+(e.message||'Check database permissions.'));}}
 
 function calc(t){const ps=Number(t.pipSize)||pipSize(t.pair),dir=t.direction==='BUY'?1:-1,invalidPrice=!validInstrumentPrice(t.pair,Number(t.entry))||!validInstrumentPrice(t.pair,Number(t.exit));if(invalidPrice)return {...t,pips:0,gross:0,net:0,risk:t.sl*t.pipValue*t.lots,r:0,outcome:'INVALID PRICE',invalidPrice:true,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr};const pips=(t.exit-t.entry)*dir/ps,gross=pips*t.pipValue*t.lots,net=gross-t.cost,risk=t.sl*t.pipValue*t.lots;return {...t,pips,gross,net,risk,r:risk?net/risk:0,outcome:net>0?'WIN':net<0?'LOSS':'BREAKEVEN',invalidPrice:false,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr}}
 function all(){return trades.map(calc).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.created||0)-(b.created||0))}
@@ -720,6 +772,11 @@ try{
  $('portfolioDate').value=new Date().toLocaleDateString('en-CA');
  $('portfolioDate').addEventListener('change',renderPortfolio);
  loadSettings();load();refresh();preview();
+ $('signIn').addEventListener('click',async()=>{const email=val('authEmail').trim(),password=val('authPassword');if(!email||!password){authMessage('Enter your email and password.',true);return;}const {data,error}=await cloud.auth.signInWithPassword({email,password});if(error){authMessage(error.message,true);return;}currentUser=data.user;authMessage('Signed in successfully. Loading your cloud journal…');$('authState').textContent='Signed in as '+currentUser.email;$('authFields').style.display='none';$('authActions').style.display='none';$('signOut').style.display='inline-flex';await loadCloudData();});
+ $('signUp').addEventListener('click',async()=>{const email=val('authEmail').trim(),password=val('authPassword');if(!email||password.length<8){authMessage('Enter a valid email and a password with at least 8 characters.',true);return;}const {data,error}=await cloud.auth.signUp({email,password});if(error){authMessage(error.message,true);return;}if(data.session){currentUser=data.user;$('authState').textContent='Signed in as '+currentUser.email;$('authFields').style.display='none';$('authActions').style.display='none';$('signOut').style.display='inline-flex';await loadCloudData();}else{authMessage('Account created. Check your email to confirm your account, then sign in.');}});
+ $('signOut').addEventListener('click',async()=>{await cloud.auth.signOut();currentUser=null;cloudReady=false;trades=[];initialCapital=0;riskPerTrade=15;$('authState').textContent='Signed out. Sign in to access your cloud journal.';$('authFields').style.display='grid';$('authActions').style.display='flex';$('signOut').style.display='none';authMessage('You have signed out.');setCloudStatus('Sign in to load your online trading journal.');$('initialCapitalInput').value='';$('riskPerTradeInput').value=15;refresh();preview();});
+ cloud.auth.getSession().then(async({data,error})=>{if(error){authMessage(error.message,true);return;}if(data.session){currentUser=data.session.user;$('authState').textContent='Signed in as '+currentUser.email;$('authFields').style.display='none';$('authActions').style.display='none';$('signOut').style.display='inline-flex';await loadCloudData();}});
+ cloud.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'&&!session){currentUser=null;cloudReady=false;trades=[];setCloudStatus('Sign in to load your online trading journal.');refresh();}});
 }catch(err){
  const box=document.createElement('div');
  box.style.cssText='margin:16px;padding:16px;border:1px solid #cf4652;border-radius:10px;background:#fff1f2;color:#8b1e2b;font:14px/1.6 Arial,sans-serif';
