@@ -419,7 +419,7 @@ button{min-height:40px}
  <div class="topstats"><div><div class="sub">TOTAL TRADES</div><div class="v" id="topTrades">0</div></div><div><div class="sub">WIN RATE</div><div class="v" id="topWin">—</div></div><div><div class="sub">DAILY P&amp;L · TODAY</div><div class="v" id="topDailyPnl">$0.00</div></div><div><div class="sub">NET P&amp;L · SELECTED PERIOD</div><div class="v" id="topPnl">$0.00</div></div></div>
 </header>
 <nav class="tabs" id="tabs">
-<button class="active" data-tab="dashboard">Overview</button><button data-tab="portfolio">Money Management</button><button data-tab="journal">Add / View Trades</button><button data-tab="pairs">Asset Performance</button><button data-tab="reentry">Attempt Analysis</button><button data-tab="risk">Equity &amp; Risk</button><button data-tab="backtest">Backtest Settings</button>
+<button class="active" data-tab="dashboard">Overview</button><button data-tab="strategy">Strategy Rules</button><button data-tab="portfolio">Money Management</button><button data-tab="journal">Add / View Trades</button><button data-tab="pairs">Asset Performance</button><button data-tab="reentry">Attempt Analysis</button><button data-tab="risk">Equity &amp; Risk</button><button data-tab="backtest">Backtest Settings</button>
 </nav>
 
 <section id="dashboard">
@@ -447,24 +447,31 @@ button{min-height:40px}
   <div><div class="muted">Initial capital</div><div class="metric" id="dCapital">$0.00</div></div><div><div class="muted">Current account equity</div><div class="metric" id="dEquity">$0.00</div></div>
   <div><div class="muted">Return on initial capital</div><div class="metric" id="dReturn">—</div></div>
  </div></div>
- <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules">
-  <div><span class="muted">Daily setup time</span><b>08:00 IST</b></div>
-  <div><span class="muted">Chart timeframe</span><b>5-minute candles</b></div>
-  <div><span class="muted">Setup candles</span><b>One bullish (green) candle and one bearish (red) candle</b></div>
-  <div><span class="muted">Setup range</span><b>Mark the high and low of the two-candle setup</b></div>
-  <div><span class="muted">Entry trigger</span><b>Wick breakout beyond the setup high or low; do not wait for candle close</b></div>
-  <div><span class="muted">Stop loss</span><b>Fixed stop-loss distance</b></div>
-  <div><span class="muted">Risk : Reward</span><b>Minimum 1 : 2</b></div>
-  <div><span class="muted">Re-entry</span><b>Allowed, subject to the daily attempt limit</b></div>
-  <div><span class="muted">Maximum attempts</span><b>4 per asset per day</b></div>
-  <div><span class="muted">Risk per attempt</span><b>As configured in Money Management</b></div>
- </div><p class="help">Apply the same setup and execution rules consistently across every asset. The app records trades manually; it does not execute or simulate candle signals.</p></div>
  <div class="panel"><div class="section">Recent trades</div><div id="recent" class="muted">No trades recorded yet. Add your first trade in Trade Journal.</div></div>
  <div class="panel"><div class="section">Strategy configuration</div><div class="grid g2 strategy-config">
   <div><span class="muted">Setup time</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5 Minutes</b></div><div><span class="muted">Breakout trigger</span><b>Wick breakout</b></div><div><span class="muted">Risk : Reward</span><b>1 : 2 minimum</b></div><div><span class="muted">Maximum attempts</span><b>4 / asset / day</b></div><div><span class="muted">User-defined risk</span><b id="strategyRiskText">$15 / attempt · $60 / asset / day</b></div><div><span class="muted">Storage</span><b>This browser</b></div>
  </div></div>
 </section>
 
+
+<section id="strategy" class="hidden">
+ <div class="section">Strategy Rules</div>
+ <div class="panel">
+  <p class="muted">Follow these rules consistently for every asset and every trading session.</p>
+ <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules">
+   <div><span class="muted">Daily setup time</span><b>08:00 IST</b></div>
+   <div><span class="muted">Chart timeframe</span><b>5-minute candles</b></div>
+   <div><span class="muted">Setup candles</span><b>One bullish (green) candle and one bearish (red) candle</b></div>
+   <div><span class="muted">Setup range</span><b>Mark the high and low of the two-candle setup</b></div>
+   <div><span class="muted">Entry trigger</span><b>Wick breakout beyond the setup high or low; do not wait for candle close</b></div>
+   <div><span class="muted">Stop loss</span><b>Fixed stop-loss distance</b></div>
+   <div><span class="muted">Risk : Reward</span><b>Minimum 1 : 2</b></div>
+   <div><span class="muted">Re-entry</span><b>Allowed, subject to the daily attempt limit</b></div>
+   <div><span class="muted">Maximum attempts</span><b>4 per asset per day</b></div>
+   <div><span class="muted">Risk per attempt</span><b>As configured in Money Management</b></div>
+  </div><p class="help">Apply the same setup and execution rules consistently across every asset. The app records trades manually; it does not execute or simulate candle signals.</p></div>
+ </div>
+</section>
 
 <section id="portfolio" class="hidden">
  <div class="section">Multi-asset money management</div>
@@ -544,18 +551,6 @@ button{min-height:40px}
   </div><div class="muted" style="margin-top:8px">Your saved risk target is applied per attempt. Use the suggested lot size as a guide, round down to your broker lot step, and verify the pip/tick value. Actual P&amp;L is based on your entered exit price and transaction costs.</div></div>
   <div class="row"><button class="primary" id="saveTrade">Save trade</button><button id="clearForm">Clear form</button></div><div class="muted" id="formMsg" style="margin-top:8px" aria-live="polite"></div>
  </div>
- <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules">
-  <div><span class="muted">Daily setup time</span><b>08:00 IST</b></div>
-  <div><span class="muted">Chart timeframe</span><b>5-minute candles</b></div>
-  <div><span class="muted">Setup candles</span><b>One bullish (green) candle and one bearish (red) candle</b></div>
-  <div><span class="muted">Setup range</span><b>Mark the high and low of the two-candle setup</b></div>
-  <div><span class="muted">Entry trigger</span><b>Wick breakout beyond the setup high or low; do not wait for candle close</b></div>
-  <div><span class="muted">Stop loss</span><b>Fixed stop-loss distance</b></div>
-  <div><span class="muted">Risk : Reward</span><b>Minimum 1 : 2</b></div>
-  <div><span class="muted">Re-entry</span><b>Allowed, subject to the daily attempt limit</b></div>
-  <div><span class="muted">Maximum attempts</span><b>4 per asset per day</b></div>
-  <div><span class="muted">Risk per attempt</span><b>As configured in Money Management</b></div>
- </div><p class="help">Apply the same setup and execution rules consistently across every asset. The app records trades manually; it does not execute or simulate candle signals.</p></div>
  <div class="panel"><div class="between"><div class="section">Trade history</div><div class="row"><input id="search" placeholder="Search pair/date..." style="width:170px"><button id="exportCSV">Export CSV</button></div></div><div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Attempt</th><th>Entry</th><th>Exit</th><th>Pips</th><th>Net USD</th><th>Result</th><th>Action</th></tr></thead><tbody id="tradeRows"><tr><td colspan="10">No trades yet</td></tr></tbody></table></div></div>
 </section>
 
@@ -716,7 +711,7 @@ $('restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];i
 $('reset').addEventListener('click',()=>{if(confirm('Delete ALL trades saved in this browser? Download a backup first.')){trades=[];save();refresh();clearForm()}});
 $('applyRange').addEventListener('click',()=>{range={start:val('startDate'),end:val('endDate')};if(range.start&&range.end&&range.start>range.end){put('rangeMsg','Start date must be before end date.');return}filtered=!!(range.start||range.end);put('rangeMsg',filtered?'Date filter applied to dashboard and analytics.':'Showing all trades.');refresh()});
 $('clearRange').addEventListener('click',()=>{filtered=false;range={start:'',end:''};put('rangeMsg','Showing all recorded trades.');refresh()});
-function openTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['dashboard','portfolio','journal','pairs','reentry','risk','backtest'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));window.scrollTo({top:0,behavior:'smooth'});}
+function openTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['dashboard','strategy','portfolio','journal','pairs','reentry','risk','backtest'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));window.scrollTo({top:0,behavior:'smooth'});}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
 document.querySelectorAll('[data-open-tab]').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.openTab)));
 try{
