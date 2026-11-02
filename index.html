@@ -440,13 +440,25 @@ button{min-height:40px}
   <div class="panel"><div class="muted">Expectancy</div><div class="metric" id="dExp">—</div><div class="muted">USD per trade</div></div>
   <div class="panel"><div class="muted">Average R</div><div class="metric" id="dR">—</div><div class="muted">Net return / risk</div></div>
  </div>
- <div class="panel"><div class="section">Daily &amp; net P&amp;L summary</div><div class="grid g2">
+ <div class="panel"><div class="section">Daily &amp; Net P&amp;L summary</div><div class="grid g2">
   <div><div class="muted">Daily net P&amp;L · Today</div><div class="metric" id="dDaily">$0.00</div></div><div><div class="muted">Net P&amp;L · Selected period</div><div class="metric" id="dNet">$0.00</div></div>
   <div><div class="muted">All-time net P&amp;L</div><div class="metric" id="dOverallNet">$0.00</div></div><div><div class="muted">Total R</div><div class="metric" id="dTotalR">0.00R</div></div>
   <div><div class="muted">Gross profit</div><strong class="positive" id="dGross">$0.00</strong></div><div><div class="muted">Gross loss</div><strong class="negative" id="dLoss">$0.00</strong></div>
   <div><div class="muted">Initial capital</div><div class="metric" id="dCapital">$0.00</div></div><div><div class="muted">Current account equity</div><div class="metric" id="dEquity">$0.00</div></div>
   <div><div class="muted">Return on initial capital</div><div class="metric" id="dReturn">—</div></div>
  </div></div>
+ <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules">
+  <div><span class="muted">Daily setup time</span><b>08:00 IST</b></div>
+  <div><span class="muted">Chart timeframe</span><b>5-minute candles</b></div>
+  <div><span class="muted">Setup candles</span><b>One bullish (green) candle and one bearish (red) candle</b></div>
+  <div><span class="muted">Setup range</span><b>Mark the high and low of the two-candle setup</b></div>
+  <div><span class="muted">Entry trigger</span><b>Wick breakout beyond the setup high or low; do not wait for candle close</b></div>
+  <div><span class="muted">Stop loss</span><b>Fixed stop-loss distance</b></div>
+  <div><span class="muted">Risk : Reward</span><b>Minimum 1 : 2</b></div>
+  <div><span class="muted">Re-entry</span><b>Allowed, subject to the daily attempt limit</b></div>
+  <div><span class="muted">Maximum attempts</span><b>4 per asset per day</b></div>
+  <div><span class="muted">Risk per attempt</span><b>As configured in Money Management</b></div>
+ </div><p class="help">Apply the same setup and execution rules consistently across every asset. The app records trades manually; it does not execute or simulate candle signals.</p></div>
  <div class="panel"><div class="section">Recent trades</div><div id="recent" class="muted">No trades recorded yet. Add your first trade in Trade Journal.</div></div>
  <div class="panel"><div class="section">Strategy configuration</div><div class="grid g2 strategy-config">
   <div><span class="muted">Setup time</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5 Minutes</b></div><div><span class="muted">Breakout trigger</span><b>Wick breakout</b></div><div><span class="muted">Risk : Reward</span><b>1 : 2 minimum</b></div><div><span class="muted">Maximum attempts</span><b>4 / asset / day</b></div><div><span class="muted">User-defined risk</span><b id="strategyRiskText">$15 / attempt · $60 / asset / day</b></div><div><span class="muted">Storage</span><b>This browser</b></div>
