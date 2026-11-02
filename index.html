@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Green Light Setup — Forex Backtesting Terminal</title>
+<title>RiskLedger — Trading Journal &amp; Performance Analytics</title>
 <style>
 :root{
  --bg:#eef3f8;--panel:#ffffff;--ink:#172b4d;--muted:#63758b;--line:#d8e2ee;
@@ -391,7 +391,7 @@ button{min-height:40px}
 <body>
 <div class="wrap" id="app">
 <header class="hero">
- <div class="between"><div><h1>🟢 GREEN LIGHT</h1><div class="sub">FOREX STRATEGY RESEARCH & BACKTESTING TERMINAL</div></div><span class="tag">LOCAL BACKTEST MODE</span></div>
+ <div class="between"><div><h1>RiskLedger</h1><div class="sub">DISCIPLINE OVER EMOTION. EVERY TRADE HAS A PURPOSE.</div></div></div>
  <div class="topstats"><div><div class="sub">TOTAL TRADES</div><div class="v" id="topTrades">0</div></div><div><div class="sub">WIN RATE</div><div class="v" id="topWin">—</div></div><div><div class="sub">DAILY P&amp;L · TODAY</div><div class="v" id="topDailyPnl">$0.00</div></div><div><div class="sub">NET P&amp;L · SELECTED PERIOD</div><div class="v" id="topPnl">$0.00</div></div></div>
 </header>
 <nav class="tabs" id="tabs">
@@ -399,7 +399,7 @@ button{min-height:40px}
 </nav>
 
 <section id="dashboard">
- <div class="actionbar"><button class="primary-cta" type="button" data-open-tab="journal">＋ Record a trade</button><button type="button" data-open-tab="portfolio">View portfolio risk</button><button type="button" data-open-tab="backtest">Backtesting guide</button></div>
+ <div class="actionbar"><button class="primary-cta" type="button" data-open-tab="journal">＋ Record a trade</button><button type="button" data-open-tab="portfolio">View portfolio risk</button></div>
  <div class="panel">
   <div class="section">Quick start</div>
   <div class="quickstart">
@@ -661,8 +661,8 @@ clearForm();refresh();put('formMsg',editId?'Trade updated successfully.':'Trade 
 $('saveSettings').addEventListener('click',saveSettings);$('saveTrade').addEventListener('click',saveTrade);$('clearForm').addEventListener('click',clearForm);$('search').addEventListener('input',renderJournal);
 $('tradeRows').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]'),del=e.target.closest('[data-del]');if(ed){const t=trades.find(x=>x.id===ed.dataset.edit);if(!t)return;editId=t.id;const map={date:'date',pair:'pair',direction:'direction',attempt:'attempt',high:'high',low:'low',entry:'entry',exit:'exit',sl:'sl',rr:'rr',lots:'lots',pipval:'pipValue',cost:'cost',reason:'reason',notes:'notes'};Object.entries(map).forEach(([id,k])=>$(id).value=t[k]??'');$('saveTrade').textContent='Update trade';preview();document.querySelector('[data-tab="journal"]').click();put('formMsg','Editing selected trade.')}if(del&&confirm('Delete this trade from this browser?')){trades=trades.filter(t=>t.id!==del.dataset.del);save();refresh()}});
 function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
-$('exportCSV').addEventListener('click',()=>{const rows=[['Date','Pair','Direction','Attempt','Setup High','Setup Low','Entry','Exit','SL Pips','RR','Lots','Pip Value USD/Lot','Costs USD','Pips','Net USD','R','Outcome','Notes'],...all().map(t=>[t.date,t.pair,t.direction,t.attempt,t.high,t.low,t.entry,t.exit,t.sl,t.rr,t.lots,t.pipValue,t.cost,t.pips,t.net,t.r,t.outcome,t.notes])];download('green_light_trades.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv')});
-$('backup').addEventListener('click',()=>download('green_light_backup.json',JSON.stringify({version:1,exported:new Date().toISOString(),trades},null,2),'application/json'));
+$('exportCSV').addEventListener('click',()=>{const rows=[['Date','Pair','Direction','Attempt','Setup High','Setup Low','Entry','Exit','SL Pips','RR','Lots','Pip Value USD/Lot','Costs USD','Pips','Net USD','R','Outcome','Notes'],...all().map(t=>[t.date,t.pair,t.direction,t.attempt,t.high,t.low,t.entry,t.exit,t.sl,t.rr,t.lots,t.pipValue,t.cost,t.pips,t.net,t.r,t.outcome,t.notes])];download('riskledger_trades.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv')});
+$('backup').addEventListener('click',()=>download('riskledger_backup.json',JSON.stringify({version:1,exported:new Date().toISOString(),trades},null,2),'application/json'));
 $('restore').addEventListener('click',()=>$('restoreFile').click());
 $('restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text()),arr=Array.isArray(x)?x:x.trades;if(!Array.isArray(arr)||!arr.every(t=>t&&t.id&&t.date&&t.pair&&Number.isFinite(Number(t.entry))&&Number.isFinite(Number(t.exit))))throw Error();if(confirm('Restore '+arr.length+' records? Existing records will be replaced.')){trades=arr;save();refresh();alert('Backup restored.')}}catch(err){alert('Invalid backup file. No changes made.')}e.target.value=''});
 $('reset').addEventListener('click',()=>{if(confirm('Delete ALL trades saved in this browser? Download a backup first.')){trades=[];save();refresh();clearForm()}});
@@ -679,9 +679,9 @@ try{
 }catch(err){
  const box=document.createElement('div');
  box.style.cssText='margin:16px;padding:16px;border:1px solid #cf4652;border-radius:10px;background:#fff1f2;color:#8b1e2b;font:14px/1.6 Arial,sans-serif';
- box.innerHTML='<b>Green Light could not finish loading.</b><br>Please download a fresh copy of the application. Your browser data has not been intentionally deleted.';
+ box.innerHTML='<b>RiskLedger could not finish loading.</b><br>Please download a fresh copy of the application. Your browser data has not been intentionally deleted.';
  document.getElementById('app')?.prepend(box);
- console.error('Green Light startup error:',err);
+ console.error('RiskLedger startup error:',err);
 }
 })();
 window.addEventListener('error',function(ev){
