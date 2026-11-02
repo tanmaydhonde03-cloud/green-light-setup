@@ -1,40 +1,50 @@
 # Green Light Setup
 
-A standalone, browser-based trading journal and performance dashboard for manually recording and reviewing trades.
+A browser-based trading journal and manual backtesting dashboard for the Green Light Setup strategy.
 
 ## Features
 
-- Dashboard with total trades, win rate, daily P&L and selected-period net P&L
-- Manual trade entry, editing and deletion
-- Asset-wise performance and attempt analysis
-- Equity curve and risk observations
-- Date-range filtering
+- Manual trade journal with asset-wise trade tracking
+- Fixed USD risk planning and minimum 1:2 risk-to-reward planning
+- Up to four independent attempts per asset per day
+- Daily P&L and selected-period net P&L
+- Asset performance and attempt-wise re-entry analysis
+- Equity curve with one point per completed trade
+- Portfolio and risk analytics
 - CSV export and JSON backup/restore
-- Responsive dark trading-terminal interface
+- Responsive dark interface for desktop, tablet and mobile
 
 ## Run locally
 
-1. Download `GreenLight.html` from this repository.
-2. Open the file in a modern browser (Chrome, Edge or Firefox).
-3. Record trades in the Trade Journal section.
+1. Download or clone this repository.
+2. Open `GreenLight.html` in Google Chrome or Microsoft Edge.
+3. Record completed trades in the trade journal.
 
-No installation or server is required.
+No server or build process is required.
 
-## Data storage
+## Data storage and backups
 
-Trade records are saved in the browser's local storage on the device and browser where the app is used. They are not automatically synced across devices or browsers. Use the JSON backup option regularly and restore the backup when moving to another device.
+Trade records are stored in the browser's local storage on the device and browser where the app is opened. Data is not automatically synchronised to GitHub or between devices.
+
+Use the application's JSON backup feature regularly. Keep backups in a secure location.
 
 ## Important limitations
 
-This is a manual trade journal and performance-analysis tool. It does not fetch live or historical market candles, automatically identify the strategy setup, perform candle-by-candle backtesting, or place trades.
+- This is a manual journal and performance-analysis tool. It does not automatically fetch historical candles, detect the setup, execute trades or place broker orders.
+- Pip/tick size and pip/tick value depend on the broker and instrument contract specifications. Verify these before relying on calculated P&L.
+- The application is an educational tracking tool, not investment advice.
 
-Confirm pip/tick size, contract specifications and pip/tick value with your broker before relying on risk calculations. Instrument specifications can differ by broker.
+## Repository structure
 
-## Risk settings
+```text
+green-light-setup/
+├── GreenLight.html
+├── README.md
+└── .gitignore
+```
 
-The configured example risk is USD 15 per attempt, with a maximum of four attempts per asset per day and a minimum risk-reward ratio of 1:2. Treat these as journal controls, not a guarantee of trading outcomes.
+## Suggested next steps
 
-## Files
-
-- `GreenLight.html` — standalone application
-- `.gitignore` — excludes local backup/export files
+- Add automated tests for P&L, risk, attempt limits and date filters.
+- Add optional cloud database synchronisation if multi-device access is required.
+- Review broker-specific contract specifications before adding automatic sizing.

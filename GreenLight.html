@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Light Setup — Forex Backtesting Terminal</title>
+<style>
+:root{
+ --bg:#eef3f8;--panel:#ffffff;--ink:#172b4d;--muted:#63758b;--line:#d8e2ee;
+ --navy:#142d4e;--navy2:#1d426b;--green:#0b8f69;--red:#cf4652;
+ --blue:#e8f1fb;--gold:#fff4d8;--teal:#18a582;--shadow:0 5px 18px rgba(24,48,78,.07);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+ margin:0;background:linear-gradient(180deg,#eaf1f8 0%,#f5f8fc 340px,var(--bg) 100%);
+ color:var(--ink);font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+ letter-spacing:.01em;
+}
+.wrap{max-width:1320px;margin:0 auto;padding:28px 24px 40px}
+.hero{
+ background:linear-gradient(125deg,#102744 0%,#173d64 58%,#126b68 100%);
+ color:#fff;padding:28px 30px;border-radius:20px;margin-bottom:20px;
+ box-shadow:0 12px 30px rgba(16,39,68,.18);position:relative;overflow:hidden
+}
+.hero:after{content:"";position:absolute;width:260px;height:260px;border:1px solid rgba(255,255,255,.10);border-radius:50%;right:-70px;top:-135px;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025)}
+.hero h1{margin:0;font-size:29px;line-height:1.2;letter-spacing:1.4px;font-weight:800}
+.sub{color:#c8d8e8;font-size:12px;line-height:1.5;margin-top:6px;letter-spacing:.04em}
+.topstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:24px;max-width:1180px}
+.topstats>div{padding:13px 16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:12px}
+.topstats .v{font-size:27px;line-height:1.25;font-weight:750;margin-top:4px}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:5px 2px 12px;margin:0 0 18px;scrollbar-width:thin}
+.tabs button{white-space:nowrap;flex:0 0 auto;background:#fff;color:#314963;border:1px solid var(--line);box-shadow:0 2px 6px rgba(25,48,76,.04)}
+button{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:10px 15px;background:#fff;color:var(--ink);font:600 13px/1.35 inherit;transition:background .18s,border-color .18s,transform .18s,box-shadow .18s}
+button:hover{filter:none;border-color:#9eb3ca;box-shadow:0 3px 9px rgba(24,48,78,.09);transform:translateY(-1px)}
+button.active,.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+button.active:hover,.primary:hover{background:var(--navy2);border-color:var(--navy2)}
+.panel{background:var(--panel);border:1px solid #dce5ef;border-radius:15px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow);min-width:0}
+.grid{display:grid;gap:14px;min-width:0}
+.grid>div,.grid>.panel{min-width:0}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.metric{font-size:26px;line-height:1.25;font-weight:750;letter-spacing:-.5px;margin:5px 0;overflow-wrap:anywhere}
+.muted{color:var(--muted);font-size:12px;line-height:1.65}
+.section{font-size:17px;line-height:1.35;font-weight:750;margin:5px 0 15px;color:#1a3557;letter-spacing:.01em}
+.positive{color:var(--green)}.negative{color:var(--red)}
+label{display:block;color:#52677f;font-size:12px;line-height:1.45;font-weight:650;margin:0 0 7px}
+input,select,textarea{
+ width:100%;min-width:0;padding:11px 12px;border:1px solid #cbd8e6;border-radius:9px;
+ background:#fbfdff;color:var(--ink);font:13px/1.4 inherit;outline:none;transition:border-color .15s,box-shadow .15s
+}
+input:focus,select:focus,textarea:focus{border-color:#4387b9;box-shadow:0 0 0 3px rgba(67,135,185,.13);background:#fff}
+textarea{resize:vertical;min-height:76px}
+.field{min-width:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:12px;white-space:nowrap}
+th,td{text-align:left;padding:12px 11px;border-bottom:1px solid #e6edf4;line-height:1.45}
+th{color:#52677f;background:#f4f7fb;font-weight:750;letter-spacing:.025em}
+thead th:first-child{border-radius:8px 0 0 8px}
+thead th:last-child{border-radius:0 8px 8px 0}
+tbody tr:hover{background:#f8fbfe}
+.scroll{overflow:auto;border:1px solid #e5ecf3;border-radius:10px}
+.tag{display:inline-block;background:#eaf1f8;color:#35516e;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;line-height:1.35}
+.bar{height:9px;background:#e8eef5;border-radius:9px;overflow:hidden}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,#159b79,#36b891);border-radius:9px}
+.hidden{display:none!important}
+.note{background:#fff8e8;border:1px solid #f0dfb5;padding:13px 15px;border-radius:10px;color:#66521f;font-size:12px;line-height:1.65}
+ul{padding-left:22px;line-height:1.8}
+li{padding-left:3px;margin:3px 0}
+.section+ .panel{margin-top:0}
+#portfolio .metric{color:#176b67}
+#portfolio .panel:first-of-type{border-top:3px solid #1a9b83}
+#risk .panel,#backtest .panel{min-width:0}
+#formMsg,#rangeMsg{line-height:1.6}
+@media(max-width:900px){
+ .wrap{padding:20px 16px 32px}
+ .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .hero{padding:23px}
+}
+@media(max-width:600px){
+ .wrap{padding:13px 11px 26px}
+ .hero{padding:20px 17px;border-radius:15px}
+ .hero h1{font-size:24px}
+ .topstats{gap:8px}
+ .topstats>div{padding:10px}
+ .topstats .v{font-size:21px}
+ .g2,.g3,.g4{grid-template-columns:1fr}
+ .panel{padding:15px;border-radius:12px}
+ .section{font-size:16px}
+ .metric{font-size:23px}
+ .between{align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Strategy configuration: keep labels and values visually separated */
+.strategy-config{column-gap:28px;row-gap:16px}
+.strategy-config>div{
+ display:grid;grid-template-columns:minmax(112px, .8fr) minmax(0,1.2fr);
+ align-items:start;column-gap:14px;row-gap:4px;min-width:0;
+ padding:2px 0;
+}
+.strategy-config .muted{display:block;white-space:normal;overflow-wrap:anywhere}
+.strategy-config b{display:block;min-width:0;color:#19395e;font-weight:750;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:600px){
+ .strategy-config{grid-template-columns:1fr;row-gap:12px}
+ .strategy-config>div{grid-template-columns:minmax(112px,.75fr) minmax(0,1.25fr);column-gap:10px}
+}
+
+/* Usability improvements */
+.tabs{position:sticky;top:0;z-index:20;background:rgba(238,243,248,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(216,226,238,.85)}
+.tabs button{padding:11px 16px}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(24,130,180,.28);outline-offset:2px}
+.quickstart{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.quickstep{display:flex;gap:11px;align-items:flex-start;padding:13px;background:#f5f8fc;border:1px solid #e0e9f2;border-radius:11px}
+.quickstep .num{display:grid;place-items:center;flex:0 0 27px;height:27px;border-radius:50%;background:#173d64;color:white;font-weight:800}
+.quickstep b{display:block;color:#19395e;margin-bottom:2px}
+.quickstep span{display:block;color:#63758b;font-size:12px;line-height:1.5}
+.actionbar{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 14px}
+.primary-cta{background:linear-gradient(120deg,#142d4e,#176b68);color:#fff;border:0;padding:12px 18px}
+.form-heading{grid-column:1/-1;margin:8px 0 -4px;padding:9px 11px;background:#f1f6fb;border-left:3px solid #1a9b83;border-radius:7px;color:#1a3557;font-size:13px;font-weight:800}
+.help{display:block;color:#71839a;font-size:11px;line-height:1.45;margin-top:5px}
+.field input,.field select{min-height:43px}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+@media(max-width:700px){.quickstart{grid-template-columns:1fr}.tabs{top:0}.hero .between{align-items:flex-start}}
+
+/* Strategy rules: separate each label from its value */
+.strategy-rules{column-gap:30px;row-gap:18px}
+.strategy-rules>div{
+ display:grid;
+ grid-template-columns:minmax(105px, .72fr) minmax(0,1.28fr);
+ align-items:start;
+ column-gap:16px;
+ row-gap:5px;
+ min-width:0;
+ padding:3px 0;
+}
+.strategy-rules .muted{
+ display:block;
+ white-space:normal;
+ line-height:1.55;
+}
+.strategy-rules b{
+ display:block;
+ min-width:0;
+ line-height:1.55;
+ overflow-wrap:anywhere;
+}
+@media(max-width:650px){
+ .strategy-rules{grid-template-columns:1fr;row-gap:13px}
+ .strategy-rules>div{grid-template-columns:minmax(100px,.7fr) minmax(0,1.3fr);column-gap:12px}
+}
+
+/* === GREEN LIGHT: premium dark trading-terminal theme === */
+:root{
+ --bg:#081321;--panel:#111f31;--ink:#e8f0fa;--muted:#9aacc2;--line:#263950;
+ --navy:#0d1b2b;--navy2:#173653;--green:#26c49a;--red:#ff6678;
+ --blue:#172d46;--gold:#3c321e;--teal:#35c6b0;--shadow:0 14px 34px rgba(0,0,0,.22);
+}
+html{background:#081321;color-scheme:dark}
+body{
+ background:
+  radial-gradient(ellipse at 12% 0%,rgba(20,111,125,.18),transparent 34%),
+  radial-gradient(ellipse at 92% 8%,rgba(38,91,151,.20),transparent 32%),
+  linear-gradient(180deg,#081321 0%,#0b1727 55%,#0d1b2c 100%);
+ color:var(--ink);min-height:100vh;
+}
+.wrap{max-width:1440px;padding:30px 28px 54px}
+.hero{
+ background:linear-gradient(118deg,#102b43 0%,#123b51 48%,#12645d 100%);
+ border:1px solid rgba(114,210,199,.20);border-radius:22px;
+ box-shadow:0 18px 45px rgba(0,0,0,.28);padding:30px 32px;margin-bottom:22px;
+}
+.hero h1{color:#f4fbff;font-size:31px;letter-spacing:1.6px}
+.hero .sub{color:#b5d0dc}
+.hero .tag{background:rgba(10,25,39,.45);color:#c4f3e8;border:1px solid rgba(152,225,211,.25)}
+.topstats{max-width:1180px;gap:12px;margin-top:25px}
+.topstats>div{background:rgba(4,20,31,.30);border:1px solid rgba(196,235,232,.14);border-radius:13px;padding:14px 17px}
+.topstats .v{color:#fff;font-size:29px}
+.tabs{
+ position:sticky;top:0;z-index:30;display:flex;gap:8px;overflow-x:auto;
+ padding:11px 12px;margin:0 0 22px;border:1px solid #253a50;border-radius:14px;
+ background:rgba(10,24,39,.94);backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,.20);
+ scrollbar-width:thin;
+}
+.tabs button{
+ flex:0 0 auto;white-space:nowrap;background:transparent;color:#b8c8d9;
+ border:1px solid transparent;box-shadow:none;padding:11px 15px;border-radius:9px;
+}
+.tabs button:hover{background:#172b40;color:#fff;border-color:#2c4963;box-shadow:none;transform:none}
+.tabs button.active{background:linear-gradient(120deg,#176c69,#168c79);color:#fff;border-color:#26a995;box-shadow:0 4px 14px rgba(23,140,121,.22)}
+button{
+ background:#172a40;color:#dce8f5;border:1px solid #30475f;border-radius:10px;
+ padding:10px 15px;font:600 13px/1.4 Inter,ui-sans-serif,system-ui,sans-serif;
+ transition:all .18s ease;
+}
+button:hover{background:#203a55;border-color:#52718f;box-shadow:0 5px 14px rgba(0,0,0,.20);transform:translateY(-1px)}
+button.active,.primary{background:#176c69;color:#fff;border-color:#239c8b}
+button.active:hover,.primary:hover{background:#198477;border-color:#2ab59e}
+.primary-cta{background:linear-gradient(120deg,#167d75,#1a9c83);color:#fff;border:1px solid #29a990;box-shadow:0 7px 18px rgba(18,135,115,.20)}
+.primary-cta:hover{background:linear-gradient(120deg,#1a9187,#20ad91)}
+.panel{
+ background:linear-gradient(145deg,rgba(20,37,57,.98),rgba(16,31,49,.98));
+ border:1px solid #263d55;border-radius:17px;padding:21px;margin-bottom:17px;
+ box-shadow:var(--shadow);min-width:0;
+}
+.section{color:#e7f1fb;font-size:17px;font-weight:760;letter-spacing:.01em}
+.muted{color:#9aadc3}
+.metric{color:#f0f6fd;font-size:28px;font-weight:780}
+.positive{color:#32d3a5!important}.negative{color:#ff7180!important}
+label{color:#bdcadd;font-size:12px;font-weight:680}
+input,select,textarea{
+ background:#0b1929;color:#edf5ff;border:1px solid #30465e;border-radius:10px;
+ padding:12px 13px;font:13px/1.45 Inter,ui-sans-serif,system-ui,sans-serif;
+}
+input::placeholder,textarea::placeholder{color:#71869e}
+input:focus,select:focus,textarea:focus{background:#0e2033;border-color:#31bba7;box-shadow:0 0 0 3px rgba(49,187,167,.15);outline:none}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.8)}
+.form-heading{background:#142b40;border-left:3px solid #2bc3a4;color:#dff8f1;border-radius:8px}
+.help{color:#8fa5bd}
+.quickstep{background:#10243a;border:1px solid #2a425b;border-radius:12px}
+.quickstep .num{background:linear-gradient(145deg,#187d78,#20a78d);color:white}
+.quickstep b{color:#e8f5fb}
+.quickstep span{color:#a5b7ca}
+.note{background:#342d1c;border:1px solid #66552c;color:#f0dca6;border-radius:12px}
+.tag{background:#1a3449;color:#b9d5e6;border:1px solid #2c4a62}
+.bar{background:#263b50}
+.bar span{background:linear-gradient(90deg,#159b83,#39d4a8)}
+.scroll{border:1px solid #2a4057;border-radius:12px}
+table{color:#dce7f3;font-size:12px}
+th{background:#192d43;color:#b9c9db;border-bottom:1px solid #30465e}
+td{border-bottom:1px solid #24394e}
+tbody tr:hover{background:#1a3047}
+thead th:first-child{border-radius:9px 0 0 9px}
+thead th:last-child{border-radius:0 9px 9px 0}
+.strategy-config b,.strategy-rules b{color:#eff7ff}
+.strategy-config .muted,.strategy-rules .muted{color:#9aadc3}
+#portfolio .metric{color:#48d5b2}
+#portfolio .panel:first-of-type{border-top:3px solid #24b99b}
+#risk .panel,#backtest .panel{min-width:0}
+#equity{color:#dbe8f5}
+#equity svg{filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+#equity svg line{stroke:#51677e}
+#equity svg text{fill:#a9bdd1}
+#storageStatus{color:#9db4ca}
+#formMsg,#rangeMsg{line-height:1.65}
+.hidden{display:none!important}
+a{color:#54d5bd}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(55,207,181,.30);outline-offset:2px}
+@media(max-width:900px){
+ .wrap{padding:20px 16px 36px}
+ .hero{padding:24px}
+ .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .wrap{padding:13px 10px 28px}
+ .hero{padding:20px 16px;border-radius:16px}
+ .hero h1{font-size:24px}
+ .topstats{grid-template-columns:1fr;gap:8px}
+ .topstats .v{font-size:23px}
+ .g2,.g3,.g4{grid-template-columns:1fr}
+ .panel{padding:15px;border-radius:13px}
+ .section{font-size:16px}
+ .metric{font-size:24px}
+ .between{align-items:flex-start}
+ .tabs{border-radius:11px;padding:8px}
+ .tabs button{padding:10px 12px}
+ .quickstart{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* === Responsive background and desktop/mobile layout refinement === */
+:root{
+ --bg:#07111f;--panel:#111f31;--ink:#e8f0fa;--muted:#9aacc2;
+ --line:#263950;--green:#26c49a;--red:#ff6678;
+}
+html{min-width:320px;background:#07111f}
+body{
+ min-width:320px;
+ background:
+  radial-gradient(900px 520px at 8% -8%,rgba(21,133,122,.22),transparent 66%),
+  radial-gradient(760px 500px at 96% 12%,rgba(49,104,170,.20),transparent 68%),
+  radial-gradient(650px 420px at 50% 100%,rgba(19,83,104,.12),transparent 72%),
+  linear-gradient(145deg,#07111f 0%,#0a1727 48%,#0b1c2e 100%);
+ background-attachment:fixed;
+}
+.wrap{width:min(100%,1540px);margin:0 auto;padding:30px clamp(14px,2.2vw,34px) 58px}
+.hero{isolation:isolate}
+.hero:before{
+ content:"";position:absolute;z-index:-1;inset:0;pointer-events:none;
+ background:linear-gradient(110deg,rgba(255,255,255,.035),transparent 45%,rgba(53,198,176,.06));
+}
+.tabs{max-width:100%;overscroll-behavior-x:contain}
+.tabs button{min-height:42px}
+.panel{overflow:visible}
+.grid{align-items:stretch}
+.grid>.panel,.grid>div{min-width:0}
+.metric,.section,.muted,label,b,strong,td,th{overflow-wrap:anywhere}
+.scroll{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.scroll table{min-width:max-content}
+input,select,textarea,button{max-width:100%}
+input,select,textarea{font-size:14px}
+button{min-height:40px}
+.actionbar button{min-height:44px}
+.quickstep{height:100%}
+#equity{max-width:100%;overflow:hidden}
+#equity svg{max-width:100%}
+.strategy-config>div,.strategy-rules>div{min-width:0}
+@media(min-width:1100px){
+ .wrap{padding-top:34px}
+ .hero{padding:34px 38px}
+ .topstats{max-width:980px}
+ .panel{padding:23px}
+ .g4{gap:17px}
+ .tabs{gap:9px}
+}
+@media(max-width:900px){
+ .wrap{padding:20px 16px 40px}
+ .hero{padding:24px}
+ .tabs{margin-left:-2px;margin-right:-2px}
+ .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .quickstart{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ html,body{font-size:14px}
+ body{background:
+  radial-gradient(520px 360px at 0% 0%,rgba(21,133,122,.16),transparent 72%),
+  linear-gradient(160deg,#07111f 0%,#0a1727 58%,#0b1c2e 100%);
+  background-attachment:scroll;
+ }
+ .wrap{padding:12px 10px 30px}
+ .hero{padding:19px 16px;border-radius:16px;margin-bottom:13px}
+ .hero h1{font-size:23px;letter-spacing:1px}
+ .hero .between{align-items:flex-start}
+ .hero .tag{font-size:10px;padding:4px 7px}
+ .topstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:17px}
+ .topstats>div{padding:10px 8px;border-radius:10px;min-width:0}
+ .topstats .sub{font-size:9px;line-height:1.3;letter-spacing:.02em}
+ .topstats .v{font-size:clamp(16px,5vw,22px);overflow-wrap:anywhere}
+ .tabs{
+  position:sticky;top:0;z-index:50;
+  display:flex;flex-wrap:nowrap;gap:6px;
+  margin:0 -1px 14px;padding:8px 7px;
+  border-radius:10px;
+  background:rgba(7,17,31,.96);
+  backdrop-filter:blur(12px);
+ }
+ .tabs button{font-size:11px;padding:9px 11px;min-height:38px}
+ .actionbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .actionbar button{font-size:12px;padding:10px 8px}
+ .actionbar button:first-child{grid-column:1/-1}
+ .panel{padding:14px 13px;margin-bottom:11px;border-radius:12px}
+ .section{font-size:15px;margin-bottom:11px}
+ .muted{font-size:11px;line-height:1.55}
+ .metric{font-size:23px}
+ .g2,.g3,.g4{grid-template-columns:1fr}
+ .quickstart{grid-template-columns:1fr;gap:8px}
+ .quickstep{padding:11px}
+ .form-heading{font-size:12px;padding:8px 10px}
+ .field{width:100%;min-width:0}
+ label{font-size:11px}
+ input,select,textarea{min-height:44px;padding:11px 10px}
+ .row,.between{gap:8px}
+ .between{align-items:flex-start}
+ .between>*{min-width:0}
+ .scroll{margin-left:0;margin-right:0}
+ th,td{padding:10px 9px;font-size:11px}
+ .strategy-config,.strategy-rules{grid-template-columns:1fr;gap:11px}
+ .strategy-config>div,.strategy-rules>div{
+  grid-template-columns:minmax(100px,.75fr) minmax(0,1.25fr);
+  column-gap:10px;padding:4px 0
+ }
+ #equity svg{min-width:0}
+}
+@media(max-width:380px){
+ .wrap{padding-left:8px;padding-right:8px}
+ .hero h1{font-size:21px}
+ .topstats .v{font-size:16px}
+ .topstats>div{padding:8px 6px}
+ .tabs button{padding:8px 9px;font-size:10px}
+ .panel{padding:12px 10px}
+ .actionbar{grid-template-columns:1fr}
+ .actionbar button:first-child{grid-column:auto}
+}
+@media(hover:none){
+ button:hover{transform:none;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+<header class="hero">
+ <div class="between"><div><h1>🟢 GREEN LIGHT</h1><div class="sub">FOREX STRATEGY RESEARCH & BACKTESTING TERMINAL</div></div><span class="tag">LOCAL BACKTEST MODE</span></div>
+ <div class="topstats"><div><div class="sub">TOTAL TRADES</div><div class="v" id="topTrades">0</div></div><div><div class="sub">WIN RATE</div><div class="v" id="topWin">—</div></div><div><div class="sub">DAILY P&amp;L · TODAY</div><div class="v" id="topDailyPnl">$0.00</div></div><div><div class="sub">NET P&amp;L · SELECTED PERIOD</div><div class="v" id="topPnl">$0.00</div></div></div>
+</header>
+<nav class="tabs" id="tabs">
+<button class="active" data-tab="dashboard">Overview</button><button data-tab="portfolio">Money Management</button><button data-tab="journal">Add / View Trades</button><button data-tab="pairs">Asset Performance</button><button data-tab="reentry">Attempt Analysis</button><button data-tab="risk">Equity &amp; Risk</button><button data-tab="backtest">Backtest Settings</button>
+</nav>
+
+<section id="dashboard">
+ <div class="actionbar"><button class="primary-cta" type="button" data-open-tab="journal">＋ Record a trade</button><button type="button" data-open-tab="portfolio">View portfolio risk</button><button type="button" data-open-tab="backtest">Backtesting guide</button></div>
+ <div class="panel">
+  <div class="section">Quick start</div>
+  <div class="quickstart">
+   <div class="quickstep"><div class="num">1</div><div><b>Choose the asset</b><span>Select the instrument you traded, such as EURUSD, Gold, BTCUSDT or Oil.</span></div></div>
+   <div class="quickstep"><div class="num">2</div><div><b>Enter trade details</b><span>Add direction, attempt, entry, exit, stop-loss, lot size and pip value.</span></div></div>
+   <div class="quickstep"><div class="num">3</div><div><b>Review performance</b><span>Save the trade and check P&amp;L, re-entry performance and portfolio risk.</span></div></div>
+  </div>
+  <p class="help">Tip: Download a JSON backup regularly. Your journal is stored in this browser on this device.</p>
+ </div>
+ <div class="between"><div class="section">Performance overview</div><span class="muted" id="dashPeriod">All recorded trades</span></div>
+ <div class="grid g4">
+  <div class="panel"><div class="muted">Win rate</div><div class="metric" id="dWin">—</div><div class="muted">Closed trades</div></div>
+  <div class="panel"><div class="muted">Profit factor</div><div class="metric" id="dPF">—</div><div class="muted">Gross profit / loss</div></div>
+  <div class="panel"><div class="muted">Expectancy</div><div class="metric" id="dExp">—</div><div class="muted">USD per trade</div></div>
+  <div class="panel"><div class="muted">Average R</div><div class="metric" id="dR">—</div><div class="muted">Net return / risk</div></div>
+ </div>
+ <div class="panel"><div class="section">Profit & loss summary</div><div class="grid g2">
+  <div><div class="muted">Net P&L</div><div class="metric" id="dNet">$0.00</div></div><div><div class="muted">Total R</div><div class="metric" id="dTotalR">0.00R</div></div>
+  <div><div class="muted">Gross profit</div><strong class="positive" id="dGross">$0.00</strong></div><div><div class="muted">Gross loss</div><strong class="negative" id="dLoss">$0.00</strong></div>
+ </div></div>
+ <div class="panel"><div class="section">Recent trades</div><div id="recent" class="muted">No trades recorded yet. Add your first trade in Trade Journal.</div></div>
+ <div class="panel"><div class="section">Strategy configuration</div><div class="grid g2 strategy-config">
+  <div><span class="muted">Setup time</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5 Minutes</b></div><div><span class="muted">Breakout trigger</span><b>Wick breakout</b></div><div><span class="muted">Risk : Reward</span><b>1 : 2 minimum</b></div><div><span class="muted">Maximum attempts</span><b>4 / asset / day</b></div><div><span class="muted">Fixed risk</span><b>$15 / attempt · $60 / asset / day</b></div><div><span class="muted">Storage</span><b>This browser</b></div>
+ </div></div>
+</section>
+
+
+<section id="portfolio" class="hidden">
+ <div class="section">Multi-asset money management</div>
+ <div class="panel">
+  <p class="muted">Fixed risk model: $15 maximum planned risk per attempt × up to 4 attempts per asset per trading day = $60 maximum risk budget per asset/day. Each asset is tracked independently; portfolio totals combine all assets traded on the selected date.</p>
+  <div class="field" style="max-width:260px"><label>Portfolio date</label><input id="portfolioDate" type="date"></div>
+  <div class="grid g4" style="margin-top:12px">
+   <div><div class="muted">Risk per attempt</div><div class="metric">$15.00</div></div>
+   <div><div class="muted">Max attempts / asset</div><div class="metric">4</div></div>
+   <div><div class="muted">Max risk / asset / day</div><div class="metric">$60.00</div></div>
+   <div><div class="muted">Assets traded today</div><div class="metric" id="pfAssets">0</div></div>
+   <div><div class="muted">Recorded risk budget used</div><div class="metric" id="pfUsed">$0.00</div></div>
+   <div><div class="muted">Remaining attempts budget</div><div class="metric" id="pfRemaining">$0.00</div></div>
+   <div><div class="muted">Portfolio risk capacity*</div><div class="metric" id="pfCapacity">$0.00</div></div>
+   <div><div class="muted">Daily realised net P&L</div><div class="metric" id="pfPnl">$0.00</div></div>
+  </div>
+  <p class="muted" style="margin-top:10px">*Capacity is calculated as $60 × the number of distinct assets with at least one recorded trade on this date. It is a tracking ceiling, not a recommended amount to lose. It does not include assets that have not yet generated a trade.</p>
+ </div>
+ <div class="panel">
+  <div class="section">Asset-wise daily allocation</div>
+  <div class="scroll"><table><thead><tr><th>Asset</th><th>Attempts used</th><th>Risk budget used</th><th>Remaining attempts</th><th>Remaining budget</th><th>Daily net P&L</th><th>Status</th></tr></thead><tbody id="portfolioRows"><tr><td colspan="7">No trades recorded for this date.</td></tr></tbody></table></div>
+ </div>
+ <div class="panel">
+  <div class="section">Portfolio money management rules</div>
+  <ul>
+   <li>Every attempt has a maximum planned loss of $15 before transaction costs and slippage.</li>
+   <li>Each asset has its own four-attempt limit. Four attempts on Gold do not use GBPUSD's four-attempt allowance.</li>
+   <li>Maximum planned risk per asset/day is $60. Across N assets actually traded, the tracked capacity is N × $60.</li>
+   <li>Position size is calculated from: <b>Lot size = $15 ÷ (SL distance in pips × pip value per lot in USD)</b>.</li>
+   <li>Use the broker's permitted lot step and round position size down, so planned risk does not exceed $15.</li>
+   <li>Correlated positions can still create concentrated exposure. The dashboard reports total exposure but does not automatically calculate correlation.</li>
+  </ul>
+ </div>
+</section>
+
+<section id="journal" class="hidden">
+ <div class="section">Trade entry form</div>
+ <div class="panel">
+  <p class="muted">Enter one completed trade at a time. Use the exact prices from your broker statement. The application calculates realised P&amp;L from entry, exit, lot size, pip value and costs.</p>
+  <div class="grid g2">
+   <div class="form-heading">1. Trade identification</div>
+   <div class="field"><label>Trade date</label><input id="date" type="date"></div>
+   <div class="field"><label>Currency pair</label><select id="pair"><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option><option>USDCHF</option><option>AUDUSD</option><option>USDCAD</option><option>NZDUSD</option><option>EURJPY</option><option>GBPJPY</option><option>EURGBP</option><option>XAUUSD</option><option>BTCUSDT</option><option>OIL</option><option>Other</option></select></div>
+   <div class="field"><label>Direction</label><select id="direction"><option>BUY</option><option>SELL</option></select></div>
+   <div class="field"><label>Attempt number</label><select id="attempt"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+   <div class="field"><label>Setup high</label><input id="high" type="number" step="any" placeholder="e.g. 1.16500"></div>
+   <div class="field"><label>Setup low</label><input id="low" type="number" step="any" placeholder="e.g. 1.16400"></div>
+   <div class="form-heading">2. Setup and execution prices</div>
+   <div class="field"><label>Entry price</label><input id="entry" type="number" step="any" placeholder="Enter broker entry price"><span class="help">Price at which your position was opened.</span></div>
+   <div class="field"><label>Exit price</label><input id="exit" type="number" step="any" placeholder="Enter broker exit price"><span class="help">Price at which your position was closed.</span></div>
+   <div class="form-heading">3. Risk and position size</div>
+   <div class="field"><label>Fixed SL (pips)</label><input id="sl" type="number" min=".1" step="any" value="10"></div>
+   <div class="field"><label>Risk : Reward multiple</label><input id="rr" type="number" min="2" step=".1" value="2"></div>
+   <div class="field"><label>Lot size</label><input id="lots" type="number" min="0" step="any" placeholder="e.g. 0.10"><span class="help">Use the lot size shown on your trading platform.</span></div>
+   <div class="field"><label>Pip / tick value per lot (USD)</label><input id="pipval" type="number" min="0" step="any" placeholder="e.g. 10"><span class="help">Check your broker contract specifications. This value differs by instrument and account currency.</span></div>
+   <div class="form-heading">4. Costs and trade notes</div>
+   <div class="field"><label>Transaction costs (USD)</label><input id="cost" type="number" min="0" step="any" value="0"><span class="help">Include commission, fees and estimated slippage in USD.</span></div>
+   <div class="field"><label>Exit reason</label><select id="reason"><option>Target</option><option>Stop Loss</option><option>Manual exit</option><option>Time exit</option><option>Other</option></select></div>
+  </div>
+  <div style="margin-top:12px"><label>Notes (optional)</label><textarea id="notes" rows="2" placeholder="Market condition, news, observation..."></textarea></div>
+  <div class="panel" style="background:#f5f8fc;margin-top:13px"><b>Calculated trade levels</b><div class="grid g2" style="margin-top:9px">
+   <div><div class="muted">Stop Loss price</div><b id="calcSL">—</b></div><div><div class="muted">Target price</div><b id="calcTP">—</b></div><div><div class="muted">Planned risk</div><b id="calcRisk">—</b></div><div><div class="muted">Expected reward</div><b id="calcReward">—</b></div><div><div class="muted">Suggested lot size for $15 risk</div><b id="suggestLots">—</b></div>
+  </div><div class="muted" style="margin-top:8px">Your fixed risk target is $15 per attempt. Use the suggested lot size as a guide, round down to your broker lot step, and verify the pip/tick value. Actual P&amp;L is based on your entered exit price and transaction costs.</div></div>
+  <div class="row"><button class="primary" id="saveTrade">Save trade</button><button id="clearForm">Clear form</button></div><div class="muted" id="formMsg" style="margin-top:8px" aria-live="polite"></div>
+ </div>
+ <div class="panel"><div class="between"><div class="section">Trade history</div><div class="row"><input id="search" placeholder="Search pair/date..." style="width:170px"><button id="exportCSV">Export CSV</button></div></div><div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Attempt</th><th>Entry</th><th>Exit</th><th>Pips</th><th>Net USD</th><th>Result</th><th>Action</th></tr></thead><tbody id="tradeRows"><tr><td colspan="10">No trades yet</td></tr></tbody></table></div></div>
+</section>
+
+<section id="pairs" class="hidden"><div class="section">Currency pair analysis</div><div class="panel"><p class="muted">Compare performance by currency pair. Use consistent pip-value and transaction-cost inputs.</p><div class="scroll"><table><thead><tr><th>Pair</th><th>Trades</th><th>Wins</th><th>Win rate</th><th>Net P&L</th><th>Profit factor</th></tr></thead><tbody id="pairRows"><tr><td colspan="6">No data</td></tr></tbody></table></div></div><div class="panel"><div class="section">Pair win-rate comparison</div><div id="pairBars" class="muted">Add trades to compare pairs.</div></div></section>
+
+<section id="reentry" class="hidden"><div class="section">Asset-wise re-entry performance</div><div class="panel"><p class="muted">Each asset has its own independent sequence: Attempt 1, 2, 3 and 4. For example, Gold Attempt 1 and GBPUSD Attempt 1 are tracked separately. Results follow the selected dashboard date filter.</p><div class="scroll"><table><thead><tr><th>Asset</th><th>Attempt</th><th>Trades</th><th>Wins</th><th>Win rate</th><th>Net P&amp;L</th><th>Average R</th></tr></thead><tbody id="reRows"></tbody></table></div></div><div class="panel"><div class="section">Daily asset attempt control</div><div class="muted">Checks each asset separately for no more than four attempts per date and no duplicate attempt numbers.</div><div id="attemptWarnings"></div></div></section>
+
+<section id="risk" class="hidden"><div class="section">Risk analytics</div><div class="grid g2">
+ <div class="panel"><div class="muted">Maximum losing streak</div><div class="metric" id="maxLossStreak">0</div></div><div class="panel"><div class="muted">Maximum drawdown</div><div class="metric" id="maxDD">$0</div></div><div class="panel"><div class="muted">Average win</div><div class="metric positive" id="avgWin">$0</div></div><div class="panel"><div class="muted">Average loss</div><div class="metric negative" id="avgLoss">$0</div></div>
+ </div><div class="panel"><div class="section">Equity curve (cumulative net P&L)</div><div id="equity" class="muted">No closed trades available.</div></div><div class="panel"><div class="section">Risk interpretation</div><div id="riskNotes" class="muted">Record trades to see risk observations.</div></div></section>
+
+<section id="backtest" class="hidden"><div class="section">Backtesting control centre</div><div class="panel"><div class="section">Backtest date range</div><div class="grid g2"><div><label>Start date</label><input id="startDate" type="date" value="2026-08-01"></div><div><label>End date</label><input id="endDate" type="date" value="2026-10-31"></div></div><div class="row" style="margin-top:10px"><button class="primary" id="applyRange">Apply date filter</button><button id="clearRange">Clear filter</button></div><div class="muted" id="rangeMsg" style="margin-top:8px">Dashboard and analytics currently use all recorded trades.</div></div>
+ <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules"><div><span class="muted">Setup</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5-minute</b></div><div><span class="muted">Signal</span><b>Wick crosses range</b></div><div><span class="muted">Risk : Reward</span><b>Minimum 1:2</b></div><div><span class="muted">Stop loss</span><b>Fixed pips</b></div><div><span class="muted">Attempts</span><b>Maximum 4 per asset / day</b></div></div></div>
+ <div class="panel"><div class="section">Backtesting methodology checklist</div><div><label><input type="checkbox" style="width:auto"> Define the exact two setup candles and their order.</label><label><input type="checkbox" style="width:auto"> Use the same 08:00 IST candle-selection rule each day.</label><label><input type="checkbox" style="width:auto"> Include every valid breakout and re-entry.</label><label><input type="checkbox" style="width:auto"> Include spread, commission and slippage.</label><label><input type="checkbox" style="width:auto"> Resolve same-candle SL/TP ambiguity using lower-timeframe data or conservative SL-first assumption.</label></div></div>
+ <div class="panel"><div class="section">Data integrity</div><div class="muted">This application calculates statistics from manually entered trades. It does not automatically download historical FX candles or simulate missing trades.</div><div id="integrity" style="margin-top:8px"></div></div>
+</section>
+
+<div class="panel"><div class="section">Data management</div><div class="row"><button id="backup">Download JSON backup</button><button id="restore">Restore JSON backup</button><button id="reset" style="color:#c33">Delete all records</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></div><p class="muted">Records are saved in this browser's local storage. Clearing browser data, using another browser or switching devices may remove or hide them. Download regular backups.</p><div id="storageStatus" class="muted">Checking browser storage…</div></div>
+<div class="note">Educational backtesting tool, not a broker or execution platform. Historical performance does not guarantee future results. XAUUSD defaults to 0.01, BTCUSDT to 1.00 and OIL to 0.01 as price increments per pip/tick. These are starting conventions only: verify your broker's contract size, tick size, pip value and transaction costs before relying on P&L.</div>
+</div>
+
+<script>
+(()=>{
+const root=document.getElementById('app');const $=id=>document.getElementById(id);if(!root){document.body.innerHTML='<p style="font:16px Arial;padding:24px">Green Light Setup could not find its application container. Please download the HTML file again.</p>';return;}const KEY='green_light_setup_trades_v1';const RISK_PER_TRADE=15;const MAX_ATTEMPTS_PER_ASSET=4;
+let trades=[],editId=null,filtered=false,range={start:'',end:''};
+const n=v=>Number(v)||0,fmt=(v,d=2)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),money=v=>'$'+fmt(v),pct=v=>fmt(v,1)+'%';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pipSize=value=>{const p=String(value||'Other').toUpperCase();return ({
+ 'XAUUSD':0.01,
+ 'BTCUSDT':1,
+ 'OIL':0.01
+}[p]??(p.endsWith('JPY')?0.01:0.0001))};
+function validInstrumentPrice(value,price){
+ const pair=String(value||'Other').toUpperCase();
+ if(!Number.isFinite(price)||price<=0)return false;
+ if(pair==='BTCUSDT')return price>=100&&price<=1000000;
+ if(pair==='XAUUSD')return price>=100&&price<=10000;
+ if(pair==='OIL')return price>=1&&price<=1000;
+ if(pair==='Other')return true;
+ if(pair.endsWith('JPY'))return price>=10&&price<=500;
+ if(/^[A-Z]{6}$/.test(pair))return price>=0.1&&price<=10;
+ return true;
+}
+function load(){try{const raw=localStorage.getItem(KEY),x=raw?JSON.parse(raw):[];trades=Array.isArray(x)?x.filter(t=>t&&typeof t==='object').map((t,i)=>({...t,id:t.id||('legacy-'+i+'-'+Date.now()),pair:String(t.pair||'Other').toUpperCase(),direction:t.direction==='SELL'?'SELL':'BUY',attempt:Number(t.attempt)||1,date:String(t.date||new Date().toLocaleDateString('en-CA')),entry:Number(t.entry)||0,exit:Number(t.exit)||0,sl:Number(t.sl)||10,rr:Number(t.rr)||2,lots:Number(t.lots)||0,pipValue:Number(t.pipValue)||0,cost:Number(t.cost)||0,pipSize:Number(t.pipSize)||pipSize(t.pair)})):[];$('storageStatus').textContent='Browser storage active · '+trades.length+' saved trade(s).'}catch(e){trades=[];$('storageStatus').textContent='Saved data could not be read. The application has opened with an empty journal. Restore a valid JSON backup if available.'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(trades));$('storageStatus').textContent='Saved in this browser · '+trades.length+' trade(s).';return true}catch(e){$('storageStatus').textContent='Save failed: '+(e&&e.name==='QuotaExceededError'?'browser storage is full. Download a JSON backup and clear old browser data only after backing it up.':'browser storage is blocked or unavailable. Open this HTML file in Chrome/Edge and allow local storage.');return false}}
+function calc(t){const ps=Number(t.pipSize)||pipSize(t.pair),dir=t.direction==='BUY'?1:-1,invalidPrice=!validInstrumentPrice(t.pair,Number(t.entry))||!validInstrumentPrice(t.pair,Number(t.exit));if(invalidPrice)return {...t,pips:0,gross:0,net:0,risk:t.sl*t.pipValue*t.lots,r:0,outcome:'INVALID PRICE',invalidPrice:true,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr};const pips=(t.exit-t.entry)*dir/ps,gross=pips*t.pipValue*t.lots,net=gross-t.cost,risk=t.sl*t.pipValue*t.lots;return {...t,pips,gross,net,risk,r:risk?net/risk:0,outcome:net>0?'WIN':net<0?'LOSS':'BREAKEVEN',invalidPrice:false,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr}}
+function all(){return trades.map(calc).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.created||0)-(b.created||0))}
+function view(){let a=all();return filtered?a.filter(t=>(!range.start||t.date>=range.start)&&(!range.end||t.date<=range.end)):a}
+function stats(a){a=a.filter(t=>!t.invalidPrice);const w=a.filter(t=>t.net>0),l=a.filter(t=>t.net<0),gp=w.reduce((s,t)=>s+t.net,0),gl=-l.reduce((s,t)=>s+t.net,0),net=gp-gl;return{n:a.length,w:w.length,l:l.length,be:a.length-w.length-l.length,gp,gl,net,wr:a.length?w.length/a.length*100:0,pf:gl?gp/gl:gp?Infinity:0,exp:a.length?net/a.length:0,avgR:a.length?a.reduce((s,t)=>s+t.r,0)/a.length:0,totalR:a.reduce((s,t)=>s+t.r,0),avgW:w.length?gp/w.length:0,avgL:l.length?-gl/l.length:0}}
+function put(id,v){$(id).textContent=v}function sign(id,v){$(id).classList.toggle('positive',v>0);$(id).classList.toggle('negative',v<0)}
+function refresh(){const a=view().filter(t=>!t.invalidPrice),s=stats(a),today=new Date().toLocaleDateString('en-CA'),todayStats=stats(all().filter(t=>t.date===today&&!t.invalidPrice));put('topTrades',s.n);put('topWin',s.n?pct(s.wr):'—');put('topDailyPnl',money(todayStats.net));sign('topDailyPnl',todayStats.net);put('topPnl',money(s.net));sign('topPnl',s.net);put('dWin',s.n?pct(s.wr):'—');put('dPF',s.pf===Infinity?'∞':s.pf?fmt(s.pf):'—');put('dExp',s.n?money(s.exp):'—');put('dR',s.n?fmt(s.avgR)+'R':'—');put('dNet',money(s.net));sign('dNet',s.net);put('dTotalR',fmt(s.totalR)+'R');put('dGross',money(s.gp));put('dLoss',money(s.gl));put('dashPeriod',filtered?'Filtered date range':'All recorded trades');
+$('recent').innerHTML=a.length?'<div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Result</th><th>Net</th></tr></thead><tbody>'+a.slice(-5).reverse().map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.pair)}</td><td>${t.direction}</td><td>${t.outcome}</td><td class="${t.net>=0?'positive':'negative'}">${money(t.net)}</td></tr>`).join('')+'</tbody></table></div>':'No trades recorded yet. Add your first trade in Trade Journal.';
+renderJournal();renderPairs(a);renderReentry(a);renderRisk(a);renderPortfolio();put('integrity',`${trades.length} saved record(s). Review all entries for correct dates, prices, costs and pip values.`)}
+function renderJournal(){const q=$('search').value.toLowerCase(),a=all().filter(t=>(t.pair+' '+t.date).toLowerCase().includes(q));$('tradeRows').innerHTML=a.length?a.slice().reverse().map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.pair)}</td><td>${t.direction}</td><td>${t.attempt}</td><td>${t.entry}</td><td>${t.exit}</td><td>${t.invalidPrice?'—':fmt(t.pips,1)}</td><td class="${t.invalidPrice?'negative':t.net>=0?'positive':'negative'}">${t.invalidPrice?'—':money(t.net)}</td><td><span class="tag">${t.invalidPrice?'INVALID PRICE':t.outcome}</span></td><td><button data-edit="${t.id}">Edit</button> <button data-del="${t.id}">×</button></td></tr>`).join(''):'<tr><td colspan="10">No matching trades.</td></tr>'}
+function renderPairs(a){const names=[...new Set(a.map(t=>t.pair))].sort();$('pairRows').innerHTML=names.length?names.map(p=>{const s=stats(a.filter(t=>t.pair===p));return`<tr><td>${esc(p)}</td><td>${s.n}</td><td>${s.w}</td><td>${pct(s.wr)}</td><td class="${s.net>=0?'positive':'negative'}">${money(s.net)}</td><td>${s.pf===Infinity?'∞':fmt(s.pf)}</td></tr>`}).join(''):'<tr><td colspan="6">No data</td></tr>';$('pairBars').innerHTML=names.length?names.map(p=>{const s=stats(a.filter(t=>t.pair===p));return`<div style="margin:12px 0"><div class="between"><span>${esc(p)} · ${s.n} trades</span><b>${pct(s.wr)}</b></div><div class="bar"><span style="width:${Math.max(0,Math.min(100,s.wr))}%"></span></div></div>`}).join(''):'Add trades to compare pairs.'}
+function renderReentry(a){
+ const names=[...new Set(a.map(t=>t.pair))].sort();
+ const rows=[];
+ names.forEach(pair=>{
+  [1,2,3,4].forEach(k=>{
+   const subset=a.filter(t=>t.pair===pair&&Number(t.attempt)===k);
+   if(subset.length){
+    const st=stats(subset);
+    rows.push(`<tr><td><b>${esc(pair)}</b></td><td>${k}</td><td>${st.n}</td><td>${st.w}</td><td>${pct(st.wr)}</td><td class="${st.net>=0?'positive':'negative'}">${money(st.net)}</td><td>${fmt(st.avgR)}R</td></tr>`);
+   }
+  });
+ });
+ $('reRows').innerHTML=rows.length?rows.join(''):'<tr><td colspan="7">No trades in the selected date range.</td></tr>';
+ const daily={};
+ a.forEach(t=>{const key=t.date+'|'+t.pair;(daily[key]??=[]).push(Number(t.attempt));});
+ const issues=[];
+ Object.entries(daily).forEach(([key,attempts])=>{
+  const [date,pair]=key.split('|');
+  if(attempts.length>4)issues.push(`${pair} · ${date}: ${attempts.length} trades recorded (maximum 4)`);
+  const duplicates=[...new Set(attempts.filter((v,i)=>attempts.indexOf(v)!==i))];
+  duplicates.forEach(k=>issues.push(`${pair} · ${date}: Attempt ${k} is recorded more than once`));
+  const invalid=attempts.filter(v=>!Number.isInteger(v)||v<1||v>4);
+  if(invalid.length)issues.push(`${pair} · ${date}: invalid attempt number detected`);
+ });
+ $('attemptWarnings').innerHTML=issues.length?'<p class="negative"><b>Review these entries:</b></p><ul>'+issues.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':'No asset/date has more than four trades or duplicate attempt numbers.';
+}
+function renderPortfolio(){const date=val('portfolioDate')||new Date().toLocaleDateString('en-CA');const day=all().filter(t=>t.date===date);const names=[...new Set(day.map(t=>t.pair))].sort();const used=day.length*RISK_PER_TRADE,capacity=names.length*MAX_ATTEMPTS_PER_ASSET*RISK_PER_TRADE,remaining=names.reduce((sum,p)=>sum+Math.max(0,MAX_ATTEMPTS_PER_ASSET-day.filter(t=>t.pair===p).length)*RISK_PER_TRADE,0),pnl=day.reduce((sum,t)=>sum+t.net,0);put('pfAssets',names.length);put('pfUsed',money(used));put('pfRemaining',money(remaining));put('pfCapacity',money(capacity));put('pfPnl',money(pnl));sign('pfPnl',pnl);$('portfolioRows').innerHTML=names.length?names.map(p=>{const ts=day.filter(t=>t.pair===p),count=ts.length,budget=count*RISK_PER_TRADE,left=Math.max(0,MAX_ATTEMPTS_PER_ASSET-count)*RISK_PER_TRADE,net=ts.reduce((sum,t)=>sum+t.net,0),status=count>=MAX_ATTEMPTS_PER_ASSET?'Limit reached':`${MAX_ATTEMPTS_PER_ASSET-count} attempt(s) available`;return`<tr><td>${esc(p)}</td><td>${count}/4</td><td>${money(budget)}</td><td>${Math.max(0,4-count)}</td><td>${money(left)}</td><td class="${net>=0?'positive':'negative'}">${money(net)}</td><td>${status}</td></tr>`}).join(''):'<tr><td colspan="7">No trades recorded for this date.</td></tr>'}function renderRisk(a){
+ let streak=0,max=0,eq=0,peak=0,dd=0;
+ const ordered=[...a].sort((x,y)=>(x.date||'').localeCompare(y.date||'')||(x.created||0)-(y.created||0));
+ const cumulative=[];
+ ordered.forEach((t,i)=>{
+  if(t.net<0){streak++;max=Math.max(max,streak)}else if(t.net>0)streak=0;
+  eq+=t.net;peak=Math.max(peak,eq);dd=Math.max(dd,peak-eq);
+  cumulative.push({trade:t,index:i+1,value:eq});
+ });
+ const st=stats(ordered);
+ put('maxLossStreak',max);put('maxDD',money(dd));put('avgWin',money(st.avgW));put('avgLoss',money(st.avgL));
+ if(!cumulative.length){
+  $('equity').textContent='No closed trades available.';
+ }else{
+  const values=cumulative.map(x=>x.value);
+  const min=Math.min(0,...values),maxV=Math.max(0,...values),span=maxV-min||1;
+  const left=42,right=758,top=24,bottom=164;
+  const xAt=i=>cumulative.length===1?(left+right)/2:left+i*(right-left)/(cumulative.length-1);
+  const yAt=v=>bottom-((v-min)/span)*(bottom-top);
+  const pts=cumulative.map((x,i)=>`${xAt(i)},${yAt(x.value)}`).join(' ');
+  const zeroY=yAt(0);
+  const circles=cumulative.map((x,i)=>{
+   const t=x.trade;
+   const title=`Trade ${x.index} · ${t.date} · ${t.pair} · ${t.direction} · Net ${money(t.net)} · Cumulative ${money(x.value)}`;
+   return `<circle cx="${xAt(i)}" cy="${yAt(x.value)}" r="5" fill="#ffffff" stroke="${x.value>=0?'#0b8f69':'#cf4652'}" stroke-width="3"><title>${esc(title)}</title></circle>`;
+  }).join('');
+  const labels=cumulative.length<=12?cumulative.map((x,i)=>`<text x="${xAt(i)}" y="190" text-anchor="middle" font-size="10" fill="#63758b">T${x.index}</text>`).join(''):'';
+  $('equity').innerHTML=`<div class="between"><span class="muted">Start: $0.00</span><b class="${eq>=0?'positive':'negative'}">End: ${money(eq)}</b></div>
+   <div class="muted" style="margin:4px 0 0">Each circle represents one completed trade. Hover over or tap a point to see trade details.</div>
+   <svg viewBox="0 0 800 218" role="img" aria-label="Cumulative profit and loss after each trade" style="width:100%;height:auto;display:block;margin-top:8px;overflow:visible">
+    <line x1="${left}" y1="${zeroY}" x2="${right}" y2="${zeroY}" stroke="#cbd6e2" stroke-dasharray="5 5"/>
+    <polyline fill="none" stroke="#159b79" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>
+    ${circles}${labels}
+   </svg>
+   <div class="between muted"><span>Trade sequence (chronological)</span><span>${cumulative.length} trade point(s)</span></div>
+   <span class="muted">Cumulative net P&amp;L after each trade, not percentage return on account equity.</span>`;
+ }
+ $('riskNotes').textContent=ordered.length?`Sample: ${st.n} trades · Win rate: ${pct(st.wr)} · Maximum observed drawdown: ${money(dd)}. Compare drawdown with actual account capital and daily loss limits.`:'Record trades to see risk observations.';
+}
+function val(id){return $(id).value.trim()}function preview(){const p=val('pair'),d=val('direction'),e=n(val('entry')),sl=n(val('sl')),rr=n(val('rr')),ps=pipSize(p),sg=d==='BUY'?1:-1,l=n(val('lots')),pv=n(val('pipval'));put('calcSL',e&&sl?(e-sg*sl*ps).toFixed(p.endsWith('JPY')?3:5):'—');put('calcTP',e&&sl&&rr?(e+sg*sl*ps*rr).toFixed(p.endsWith('JPY')?3:5):'—');put('calcRisk',sl&&l&&pv?money(sl*l*pv):'—');put('calcReward',sl&&l&&pv&&rr?money(sl*l*pv*rr):'—');put('suggestLots',sl&&pv?fmt(RISK_PER_TRADE/(sl*pv),4):'—')}
+['pair','direction','entry','sl','rr','lots','pipval'].forEach(id=>$(id).addEventListener('input',preview));
+function clearForm(){editId=null;['high','low','entry','exit','lots','pipval','notes'].forEach(id=>$(id).value='');$('cost').value='0';$('sl').value='10';$('rr').value='2';$('attempt').value='1';$('reason').value='Target';$('date').value=new Date().toLocaleDateString('en-CA');$('saveTrade').textContent='Save trade';put('formMsg','');preview()}
+function saveTrade(){const t={date:val('date'),pair:val('pair'),direction:val('direction'),attempt:n(val('attempt')),high:val('high')===''?'':n(val('high')),low:val('low')===''?'':n(val('low')),entry:n(val('entry')),exit:n(val('exit')),sl:n(val('sl')),rr:n(val('rr')),lots:n(val('lots')),pipValue:n(val('pipval')),cost:n(val('cost')),reason:val('reason'),notes:val('notes'),pipSize:pipSize(val('pair')),created:Date.now()};
+if(!t.date||!t.pair||!t.entry||!t.exit||!t.sl||!t.rr||!t.lots||!t.pipValue){put('formMsg','Fill date, pair, entry, exit, fixed SL, RR, lots and pip value.');return}
+if(!validInstrumentPrice(t.pair,t.entry)||!validInstrumentPrice(t.pair,t.exit)){put('formMsg',`${t.pair} price looks invalid. Check the selected asset and entry/exit prices. For example, 82,100 is a BTCUSDT-type price, not a valid EURUSD quote. Select the correct asset or enter the correct market price.`);return}if(t.sl<=0||t.rr<2||t.lots<=0||t.pipValue<=0||t.cost<0||t.attempt<1||t.attempt>4){put('formMsg','Check values: SL and lots positive, RR at least 2, attempts 1–4.');return}if(t.high!==''&&t.low!==''&&t.high<=t.low){put('formMsg','Setup high must be greater than setup low.');return}
+const plannedRisk=t.sl*t.pipValue*t.lots;
+if(plannedRisk>RISK_PER_TRADE+0.01){put('formMsg',`Planned risk is ${money(plannedRisk)}. Reduce lot size: maximum is $15 per attempt. Suggested lot size is ${fmt(RISK_PER_TRADE/(t.sl*t.pipValue),4)} before broker lot-step rounding.`);return}
+const sameAssetDay=trades.filter(x=>x.date===t.date&&x.pair===t.pair&&x.id!==editId);
+if(sameAssetDay.length>=MAX_ATTEMPTS_PER_ASSET){put('formMsg',`${t.pair} already has 4 attempts recorded for ${t.date}. No further attempt is allowed for this asset/day.`);return}
+if(sameAssetDay.some(x=>Number(x.attempt)===t.attempt)){put('formMsg',`Attempt ${t.attempt} is already recorded for ${t.pair} on ${t.date}. Use the next unused attempt number.`);return}
+const previousTrades=trades.map(x=>({...x}));
+if(editId){
+ const i=trades.findIndex(x=>x.id===editId);
+ if(i<0){put('formMsg','Could not find the trade being edited. Refresh the page and try again.');return}
+ trades[i]={...t,id:editId,created:trades[i].created??Date.now()};
+}else{
+ t.id='gl-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+ trades.push(t);
+}
+if(!save()){
+ trades=previousTrades;
+ put('formMsg','Save failed: browser storage could not save this change. Download a JSON backup, check browser storage permissions, and try again. Your current form has been kept.');
+ return;
+}
+clearForm();refresh();put('formMsg',editId?'Trade updated successfully.':'Trade saved successfully.');
+}
+$('saveTrade').addEventListener('click',saveTrade);$('clearForm').addEventListener('click',clearForm);$('search').addEventListener('input',renderJournal);
+$('tradeRows').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]'),del=e.target.closest('[data-del]');if(ed){const t=trades.find(x=>x.id===ed.dataset.edit);if(!t)return;editId=t.id;const map={date:'date',pair:'pair',direction:'direction',attempt:'attempt',high:'high',low:'low',entry:'entry',exit:'exit',sl:'sl',rr:'rr',lots:'lots',pipval:'pipValue',cost:'cost',reason:'reason',notes:'notes'};Object.entries(map).forEach(([id,k])=>$(id).value=t[k]??'');$('saveTrade').textContent='Update trade';preview();document.querySelector('[data-tab="journal"]').click();put('formMsg','Editing selected trade.')}if(del&&confirm('Delete this trade from this browser?')){trades=trades.filter(t=>t.id!==del.dataset.del);save();refresh()}});
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+$('exportCSV').addEventListener('click',()=>{const rows=[['Date','Pair','Direction','Attempt','Setup High','Setup Low','Entry','Exit','SL Pips','RR','Lots','Pip Value USD/Lot','Costs USD','Pips','Net USD','R','Outcome','Notes'],...all().map(t=>[t.date,t.pair,t.direction,t.attempt,t.high,t.low,t.entry,t.exit,t.sl,t.rr,t.lots,t.pipValue,t.cost,t.pips,t.net,t.r,t.outcome,t.notes])];download('green_light_trades.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv')});
+$('backup').addEventListener('click',()=>download('green_light_backup.json',JSON.stringify({version:1,exported:new Date().toISOString(),trades},null,2),'application/json'));
+$('restore').addEventListener('click',()=>$('restoreFile').click());
+$('restoreFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text()),arr=Array.isArray(x)?x:x.trades;if(!Array.isArray(arr)||!arr.every(t=>t&&t.id&&t.date&&t.pair&&Number.isFinite(Number(t.entry))&&Number.isFinite(Number(t.exit))))throw Error();if(confirm('Restore '+arr.length+' records? Existing records will be replaced.')){trades=arr;save();refresh();alert('Backup restored.')}}catch(err){alert('Invalid backup file. No changes made.')}e.target.value=''});
+$('reset').addEventListener('click',()=>{if(confirm('Delete ALL trades saved in this browser? Download a backup first.')){trades=[];save();refresh();clearForm()}});
+$('applyRange').addEventListener('click',()=>{range={start:val('startDate'),end:val('endDate')};if(range.start&&range.end&&range.start>range.end){put('rangeMsg','Start date must be before end date.');return}filtered=!!(range.start||range.end);put('rangeMsg',filtered?'Date filter applied to dashboard and analytics.':'Showing all trades.');refresh()});
+$('clearRange').addEventListener('click',()=>{filtered=false;range={start:'',end:''};put('rangeMsg','Showing all recorded trades.');refresh()});
+function openTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['dashboard','portfolio','journal','pairs','reentry','risk','backtest'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
+document.querySelectorAll('[data-open-tab]').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.openTab)));
+try{
+ $('date').value=new Date().toLocaleDateString('en-CA');
+ $('portfolioDate').value=new Date().toLocaleDateString('en-CA');
+ $('portfolioDate').addEventListener('change',renderPortfolio);
+ load();refresh();preview();
+}catch(err){
+ const box=document.createElement('div');
+ box.style.cssText='margin:16px;padding:16px;border:1px solid #cf4652;border-radius:10px;background:#fff1f2;color:#8b1e2b;font:14px/1.6 Arial,sans-serif';
+ box.innerHTML='<b>Green Light could not finish loading.</b><br>Please download a fresh copy of the application. Your browser data has not been intentionally deleted.';
+ document.getElementById('app')?.prepend(box);
+ console.error('Green Light startup error:',err);
+}
+})();
+window.addEventListener('error',function(ev){
+ const app=document.getElementById('app');if(!app)return;
+ let box=document.getElementById('runtimeError');
+ if(!box){box=document.createElement('div');box.id='runtimeError';box.style.cssText='margin:16px;padding:14px;border:1px solid #cf4652;border-radius:10px;background:#fff1f2;color:#8b1e2b;font:13px/1.5 Arial,sans-serif';app.prepend(box);}
+ box.textContent='Application error: '+(ev.message||'Unknown script error')+'. Please share this message when requesting support.';
+});
+</script>
+</body></html>
