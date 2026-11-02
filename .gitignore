@@ -1,0 +1,7 @@
+# Local backups and exports
+*.json
+*.csv
+backups/
+exports/
+.DS_Store
+Thumbs.db
