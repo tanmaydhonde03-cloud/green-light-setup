@@ -390,6 +390,26 @@ button{min-height:40px}
 @media(hover:none){
  button:hover{transform:none;box-shadow:none}
 }
+
+/* Keep application titles and section headings on a single line */
+.hero h1,
+.hero .brand-block .sub,
+.section{
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ min-width:0;
+}
+.section{
+ font-size:clamp(12px,1.15vw,17px);
+ line-height:1.35;
+}
+.hero .brand-block{min-width:0}
+.hero .brand-block .sub{max-width:100%;font-size:clamp(9px,1vw,12px)}
+@media(max-width:640px){
+ .section{font-size:clamp(11px,3.1vw,15px)}
+ .hero h1{font-size:clamp(20px,6vw,24px)}
+}
 </style>
 </head>
 <body>
