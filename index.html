@@ -416,13 +416,16 @@ button{min-height:40px}
   <div class="panel"><div class="muted">Expectancy</div><div class="metric" id="dExp">—</div><div class="muted">USD per trade</div></div>
   <div class="panel"><div class="muted">Average R</div><div class="metric" id="dR">—</div><div class="muted">Net return / risk</div></div>
  </div>
- <div class="panel"><div class="section">Profit & loss summary</div><div class="grid g2">
-  <div><div class="muted">Net P&L</div><div class="metric" id="dNet">$0.00</div></div><div><div class="muted">Total R</div><div class="metric" id="dTotalR">0.00R</div></div>
+ <div class="panel"><div class="section">Daily &amp; net P&amp;L summary</div><div class="grid g2">
+  <div><div class="muted">Daily net P&amp;L · Today</div><div class="metric" id="dDaily">$0.00</div></div><div><div class="muted">Net P&amp;L · Selected period</div><div class="metric" id="dNet">$0.00</div></div>
+  <div><div class="muted">All-time net P&amp;L</div><div class="metric" id="dOverallNet">$0.00</div></div><div><div class="muted">Total R</div><div class="metric" id="dTotalR">0.00R</div></div>
   <div><div class="muted">Gross profit</div><strong class="positive" id="dGross">$0.00</strong></div><div><div class="muted">Gross loss</div><strong class="negative" id="dLoss">$0.00</strong></div>
+  <div><div class="muted">Initial capital</div><div class="metric" id="dCapital">$0.00</div></div><div><div class="muted">Current account equity</div><div class="metric" id="dEquity">$0.00</div></div>
+  <div><div class="muted">Return on initial capital</div><div class="metric" id="dReturn">—</div></div>
  </div></div>
  <div class="panel"><div class="section">Recent trades</div><div id="recent" class="muted">No trades recorded yet. Add your first trade in Trade Journal.</div></div>
  <div class="panel"><div class="section">Strategy configuration</div><div class="grid g2 strategy-config">
-  <div><span class="muted">Setup time</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5 Minutes</b></div><div><span class="muted">Breakout trigger</span><b>Wick breakout</b></div><div><span class="muted">Risk : Reward</span><b>1 : 2 minimum</b></div><div><span class="muted">Maximum attempts</span><b>4 / asset / day</b></div><div><span class="muted">Fixed risk</span><b>$15 / attempt · $60 / asset / day</b></div><div><span class="muted">Storage</span><b>This browser</b></div>
+  <div><span class="muted">Setup time</span><b>08:00 IST</b></div><div><span class="muted">Timeframe</span><b>5 Minutes</b></div><div><span class="muted">Breakout trigger</span><b>Wick breakout</b></div><div><span class="muted">Risk : Reward</span><b>1 : 2 minimum</b></div><div><span class="muted">Maximum attempts</span><b>4 / asset / day</b></div><div><span class="muted">User-defined risk</span><b id="strategyRiskText">$15 / attempt · $60 / asset / day</b></div><div><span class="muted">Storage</span><b>This browser</b></div>
  </div></div>
 </section>
 
@@ -430,19 +433,33 @@ button{min-height:40px}
 <section id="portfolio" class="hidden">
  <div class="section">Multi-asset money management</div>
  <div class="panel">
-  <p class="muted">Fixed risk model: $15 maximum planned risk per attempt × up to 4 attempts per asset per trading day = $60 maximum risk budget per asset/day. Each asset is tracked independently; portfolio totals combine all assets traded on the selected date.</p>
+  <div class="section">Personalise your account &amp; risk settings</div>
+  <p class="muted">Set your own account starting capital and maximum planned risk per trade. These settings are saved in this browser and apply to new trade entries and portfolio risk calculations.</p>
+  <div class="grid g2">
+   <div class="field"><label>Initial capital (USD)</label><input id="initialCapitalInput" type="number" min="0" step="0.01" placeholder="e.g. 1000"><span class="help">Your account balance before the trades recorded in this journal.</span></div>
+   <div class="field"><label>Maximum risk per trade (USD)</label><input id="riskPerTradeInput" type="number" min="0.01" step="0.01" placeholder="e.g. 15"><span class="help">Maximum planned loss for each attempt, before costs and slippage.</span></div>
+  </div>
+  <div class="row" style="margin-top:12px"><button class="primary" id="saveSettings">Save money management settings</button><span class="muted" id="settingsMsg" aria-live="polite"></span></div>
+  <div class="grid g3" style="margin-top:14px">
+   <div><div class="muted">Initial capital</div><div class="metric" id="pfInitialCapital">$0.00</div></div>
+   <div><div class="muted">Current account equity</div><div class="metric" id="pfCurrentEquity">$0.00</div></div>
+   <div><div class="muted">Net return</div><div class="metric" id="pfReturn">—</div></div>
+  </div>
+ </div>
+ <div class="panel">
+  <p class="muted">Risk model: your selected maximum risk per trade × up to 4 attempts per asset per trading day. Each asset is tracked independently; portfolio totals combine all assets traded on the selected date.</p>
   <div class="field" style="max-width:260px"><label>Portfolio date</label><input id="portfolioDate" type="date"></div>
   <div class="grid g4" style="margin-top:12px">
-   <div><div class="muted">Risk per attempt</div><div class="metric">$15.00</div></div>
+   <div><div class="muted">Risk per attempt</div><div class="metric" id="pfRiskPerAttempt">$15.00</div></div>
    <div><div class="muted">Max attempts / asset</div><div class="metric">4</div></div>
-   <div><div class="muted">Max risk / asset / day</div><div class="metric">$60.00</div></div>
+   <div><div class="muted">Max risk / asset / day</div><div class="metric" id="pfMaxRiskAsset">$60.00</div></div>
    <div><div class="muted">Assets traded today</div><div class="metric" id="pfAssets">0</div></div>
    <div><div class="muted">Recorded risk budget used</div><div class="metric" id="pfUsed">$0.00</div></div>
    <div><div class="muted">Remaining attempts budget</div><div class="metric" id="pfRemaining">$0.00</div></div>
    <div><div class="muted">Portfolio risk capacity*</div><div class="metric" id="pfCapacity">$0.00</div></div>
    <div><div class="muted">Daily realised net P&L</div><div class="metric" id="pfPnl">$0.00</div></div>
   </div>
-  <p class="muted" style="margin-top:10px">*Capacity is calculated as $60 × the number of distinct assets with at least one recorded trade on this date. It is a tracking ceiling, not a recommended amount to lose. It does not include assets that have not yet generated a trade.</p>
+  <p class="muted" style="margin-top:10px">*Capacity is calculated as your risk-per-trade setting × 4 × the number of distinct assets with at least one recorded trade on this date. It is a tracking ceiling, not a recommended amount to lose.</p>
  </div>
  <div class="panel">
   <div class="section">Asset-wise daily allocation</div>
@@ -451,11 +468,11 @@ button{min-height:40px}
  <div class="panel">
   <div class="section">Portfolio money management rules</div>
   <ul>
-   <li>Every attempt has a maximum planned loss of $15 before transaction costs and slippage.</li>
+   <li>Every attempt has a maximum planned loss equal to your saved risk-per-trade setting, before transaction costs and slippage.</li>
    <li>Each asset has its own four-attempt limit. Four attempts on Gold do not use GBPUSD's four-attempt allowance.</li>
-   <li>Maximum planned risk per asset/day is $60. Across N assets actually traded, the tracked capacity is N × $60.</li>
-   <li>Position size is calculated from: <b>Lot size = $15 ÷ (SL distance in pips × pip value per lot in USD)</b>.</li>
-   <li>Use the broker's permitted lot step and round position size down, so planned risk does not exceed $15.</li>
+   <li>Maximum planned risk per asset/day is your risk setting × 4. Across N assets actually traded, tracked capacity is N × your risk setting × 4.</li>
+   <li>Position size is calculated from: <b>Lot size = your risk per trade ÷ (SL distance in pips × pip value per lot in USD)</b>.</li>
+   <li>Use the broker's permitted lot step and round position size down, so planned risk does not exceed your selected risk amount.</li>
    <li>Correlated positions can still create concentrated exposure. The dashboard reports total exposure but does not automatically calculate correlation.</li>
   </ul>
  </div>
@@ -487,8 +504,8 @@ button{min-height:40px}
   </div>
   <div style="margin-top:12px"><label>Notes (optional)</label><textarea id="notes" rows="2" placeholder="Market condition, news, observation..."></textarea></div>
   <div class="panel" style="background:#f5f8fc;margin-top:13px"><b>Calculated trade levels</b><div class="grid g2" style="margin-top:9px">
-   <div><div class="muted">Stop Loss price</div><b id="calcSL">—</b></div><div><div class="muted">Target price</div><b id="calcTP">—</b></div><div><div class="muted">Planned risk</div><b id="calcRisk">—</b></div><div><div class="muted">Expected reward</div><b id="calcReward">—</b></div><div><div class="muted">Suggested lot size for $15 risk</div><b id="suggestLots">—</b></div>
-  </div><div class="muted" style="margin-top:8px">Your fixed risk target is $15 per attempt. Use the suggested lot size as a guide, round down to your broker lot step, and verify the pip/tick value. Actual P&amp;L is based on your entered exit price and transaction costs.</div></div>
+   <div><div class="muted">Stop Loss price</div><b id="calcSL">—</b></div><div><div class="muted">Target price</div><b id="calcTP">—</b></div><div><div class="muted">Planned risk</div><b id="calcRisk">—</b></div><div><div class="muted">Expected reward</div><b id="calcReward">—</b></div><div><div class="muted">Suggested lot size for selected risk</div><b id="suggestLots">—</b></div>
+  </div><div class="muted" style="margin-top:8px">Your saved risk target is applied per attempt. Use the suggested lot size as a guide, round down to your broker lot step, and verify the pip/tick value. Actual P&amp;L is based on your entered exit price and transaction costs.</div></div>
   <div class="row"><button class="primary" id="saveTrade">Save trade</button><button id="clearForm">Clear form</button></div><div class="muted" id="formMsg" style="margin-top:8px" aria-live="polite"></div>
  </div>
  <div class="panel"><div class="between"><div class="section">Trade history</div><div class="row"><input id="search" placeholder="Search pair/date..." style="width:170px"><button id="exportCSV">Export CSV</button></div></div><div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Attempt</th><th>Entry</th><th>Exit</th><th>Pips</th><th>Net USD</th><th>Result</th><th>Action</th></tr></thead><tbody id="tradeRows"><tr><td colspan="10">No trades yet</td></tr></tbody></table></div></div>
@@ -514,7 +531,7 @@ button{min-height:40px}
 
 <script>
 (()=>{
-const root=document.getElementById('app');const $=id=>document.getElementById(id);if(!root){document.body.innerHTML='<p style="font:16px Arial;padding:24px">Green Light Setup could not find its application container. Please download the HTML file again.</p>';return;}const KEY='green_light_setup_trades_v1';const RISK_PER_TRADE=15;const MAX_ATTEMPTS_PER_ASSET=4;
+const root=document.getElementById('app');const $=id=>document.getElementById(id);if(!root){document.body.innerHTML='<p style="font:16px Arial;padding:24px">Green Light Setup could not find its application container. Please download the HTML file again.</p>';return;}const KEY='green_light_setup_trades_v1';const SETTINGS_KEY='green_light_setup_settings_v1';let riskPerTrade=15,initialCapital=0;const MAX_ATTEMPTS_PER_ASSET=4;
 let trades=[],editId=null,filtered=false,range={start:'',end:''};
 const n=v=>Number(v)||0,fmt=(v,d=2)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),money=v=>'$'+fmt(v),pct=v=>fmt(v,1)+'%';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -536,12 +553,15 @@ function validInstrumentPrice(value,price){
 }
 function load(){try{const raw=localStorage.getItem(KEY),x=raw?JSON.parse(raw):[];trades=Array.isArray(x)?x.filter(t=>t&&typeof t==='object').map((t,i)=>({...t,id:t.id||('legacy-'+i+'-'+Date.now()),pair:String(t.pair||'Other').toUpperCase(),direction:t.direction==='SELL'?'SELL':'BUY',attempt:Number(t.attempt)||1,date:String(t.date||new Date().toLocaleDateString('en-CA')),entry:Number(t.entry)||0,exit:Number(t.exit)||0,sl:Number(t.sl)||10,rr:Number(t.rr)||2,lots:Number(t.lots)||0,pipValue:Number(t.pipValue)||0,cost:Number(t.cost)||0,pipSize:Number(t.pipSize)||pipSize(t.pair)})):[];$('storageStatus').textContent='Browser storage active · '+trades.length+' saved trade(s).'}catch(e){trades=[];$('storageStatus').textContent='Saved data could not be read. The application has opened with an empty journal. Restore a valid JSON backup if available.'}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(trades));$('storageStatus').textContent='Saved in this browser · '+trades.length+' trade(s).';return true}catch(e){$('storageStatus').textContent='Save failed: '+(e&&e.name==='QuotaExceededError'?'browser storage is full. Download a JSON backup and clear old browser data only after backing it up.':'browser storage is blocked or unavailable. Open this HTML file in Chrome/Edge and allow local storage.');return false}}
+function loadSettings(){try{const x=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');if(Number.isFinite(Number(x.riskPerTrade))&&Number(x.riskPerTrade)>0)riskPerTrade=Number(x.riskPerTrade);if(Number.isFinite(Number(x.initialCapital))&&Number(x.initialCapital)>=0)initialCapital=Number(x.initialCapital);}catch(e){}$('initialCapitalInput').value=initialCapital||'';$('riskPerTradeInput').value=riskPerTrade;}
+function saveSettings(){const capital=Number(val('initialCapitalInput')),risk=Number(val('riskPerTradeInput'));if(!Number.isFinite(capital)||capital<0||!Number.isFinite(risk)||risk<=0){put('settingsMsg','Enter initial capital of zero or more and risk per trade greater than zero.');return;}const old={initialCapital,riskPerTrade};initialCapital=capital;riskPerTrade=risk;try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({initialCapital,riskPerTrade}));put('settingsMsg','Settings saved in this browser.');preview();refresh();}catch(e){initialCapital=old.initialCapital;riskPerTrade=old.riskPerTrade;put('settingsMsg','Could not save settings. Check browser storage permissions.');}}
+
 function calc(t){const ps=Number(t.pipSize)||pipSize(t.pair),dir=t.direction==='BUY'?1:-1,invalidPrice=!validInstrumentPrice(t.pair,Number(t.entry))||!validInstrumentPrice(t.pair,Number(t.exit));if(invalidPrice)return {...t,pips:0,gross:0,net:0,risk:t.sl*t.pipValue*t.lots,r:0,outcome:'INVALID PRICE',invalidPrice:true,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr};const pips=(t.exit-t.entry)*dir/ps,gross=pips*t.pipValue*t.lots,net=gross-t.cost,risk=t.sl*t.pipValue*t.lots;return {...t,pips,gross,net,risk,r:risk?net/risk:0,outcome:net>0?'WIN':net<0?'LOSS':'BREAKEVEN',invalidPrice:false,slPrice:t.entry-dir*t.sl*ps,tpPrice:t.entry+dir*t.sl*ps*t.rr}}
 function all(){return trades.map(calc).sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.created||0)-(b.created||0))}
 function view(){let a=all();return filtered?a.filter(t=>(!range.start||t.date>=range.start)&&(!range.end||t.date<=range.end)):a}
 function stats(a){a=a.filter(t=>!t.invalidPrice);const w=a.filter(t=>t.net>0),l=a.filter(t=>t.net<0),gp=w.reduce((s,t)=>s+t.net,0),gl=-l.reduce((s,t)=>s+t.net,0),net=gp-gl;return{n:a.length,w:w.length,l:l.length,be:a.length-w.length-l.length,gp,gl,net,wr:a.length?w.length/a.length*100:0,pf:gl?gp/gl:gp?Infinity:0,exp:a.length?net/a.length:0,avgR:a.length?a.reduce((s,t)=>s+t.r,0)/a.length:0,totalR:a.reduce((s,t)=>s+t.r,0),avgW:w.length?gp/w.length:0,avgL:l.length?-gl/l.length:0}}
 function put(id,v){$(id).textContent=v}function sign(id,v){$(id).classList.toggle('positive',v>0);$(id).classList.toggle('negative',v<0)}
-function refresh(){const a=view().filter(t=>!t.invalidPrice),s=stats(a),today=new Date().toLocaleDateString('en-CA'),todayStats=stats(all().filter(t=>t.date===today&&!t.invalidPrice));put('topTrades',s.n);put('topWin',s.n?pct(s.wr):'—');put('topDailyPnl',money(todayStats.net));sign('topDailyPnl',todayStats.net);put('topPnl',money(s.net));sign('topPnl',s.net);put('dWin',s.n?pct(s.wr):'—');put('dPF',s.pf===Infinity?'∞':s.pf?fmt(s.pf):'—');put('dExp',s.n?money(s.exp):'—');put('dR',s.n?fmt(s.avgR)+'R':'—');put('dNet',money(s.net));sign('dNet',s.net);put('dTotalR',fmt(s.totalR)+'R');put('dGross',money(s.gp));put('dLoss',money(s.gl));put('dashPeriod',filtered?'Filtered date range':'All recorded trades');
+function refresh(){const a=view().filter(t=>!t.invalidPrice),s=stats(a),today=new Date().toLocaleDateString('en-CA'),todayStats=stats(all().filter(t=>t.date===today&&!t.invalidPrice)),allTimeStats=stats(all()),equity=initialCapital+allTimeStats.net,ret=initialCapital>0?allTimeStats.net/initialCapital*100:null;put('topTrades',s.n);put('topWin',s.n?pct(s.wr):'—');put('topDailyPnl',money(todayStats.net));sign('topDailyPnl',todayStats.net);put('topPnl',money(s.net));sign('topPnl',s.net);put('dWin',s.n?pct(s.wr):'—');put('dPF',s.pf===Infinity?'∞':s.pf?fmt(s.pf):'—');put('dExp',s.n?money(s.exp):'—');put('dR',s.n?fmt(s.avgR)+'R':'—');put('dNet',money(s.net));sign('dNet',s.net);put('dDaily',money(todayStats.net));sign('dDaily',todayStats.net);put('dOverallNet',money(allTimeStats.net));sign('dOverallNet',allTimeStats.net);put('dCapital',money(initialCapital));put('dEquity',money(equity));put('dReturn',ret===null?'—':pct(ret));sign('dReturn',ret||0);put('dTotalR',fmt(s.totalR)+'R');put('dGross',money(s.gp));put('dLoss',money(s.gl));put('dashPeriod',filtered?'Filtered date range':'All recorded trades');put('strategyRiskText',`${money(riskPerTrade)} / attempt · ${money(riskPerTrade*MAX_ATTEMPTS_PER_ASSET)} / asset / day`);
 $('recent').innerHTML=a.length?'<div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Result</th><th>Net</th></tr></thead><tbody>'+a.slice(-5).reverse().map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.pair)}</td><td>${t.direction}</td><td>${t.outcome}</td><td class="${t.net>=0?'positive':'negative'}">${money(t.net)}</td></tr>`).join('')+'</tbody></table></div>':'No trades recorded yet. Add your first trade in Trade Journal.';
 renderJournal();renderPairs(a);renderReentry(a);renderRisk(a);renderPortfolio();put('integrity',`${trades.length} saved record(s). Review all entries for correct dates, prices, costs and pip values.`)}
 function renderJournal(){const q=$('search').value.toLowerCase(),a=all().filter(t=>(t.pair+' '+t.date).toLowerCase().includes(q));$('tradeRows').innerHTML=a.length?a.slice().reverse().map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.pair)}</td><td>${t.direction}</td><td>${t.attempt}</td><td>${t.entry}</td><td>${t.exit}</td><td>${t.invalidPrice?'—':fmt(t.pips,1)}</td><td class="${t.invalidPrice?'negative':t.net>=0?'positive':'negative'}">${t.invalidPrice?'—':money(t.net)}</td><td><span class="tag">${t.invalidPrice?'INVALID PRICE':t.outcome}</span></td><td><button data-edit="${t.id}">Edit</button> <button data-del="${t.id}">×</button></td></tr>`).join(''):'<tr><td colspan="10">No matching trades.</td></tr>'}
@@ -572,7 +592,7 @@ function renderReentry(a){
  });
  $('attemptWarnings').innerHTML=issues.length?'<p class="negative"><b>Review these entries:</b></p><ul>'+issues.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>':'No asset/date has more than four trades or duplicate attempt numbers.';
 }
-function renderPortfolio(){const date=val('portfolioDate')||new Date().toLocaleDateString('en-CA');const day=all().filter(t=>t.date===date);const names=[...new Set(day.map(t=>t.pair))].sort();const used=day.length*RISK_PER_TRADE,capacity=names.length*MAX_ATTEMPTS_PER_ASSET*RISK_PER_TRADE,remaining=names.reduce((sum,p)=>sum+Math.max(0,MAX_ATTEMPTS_PER_ASSET-day.filter(t=>t.pair===p).length)*RISK_PER_TRADE,0),pnl=day.reduce((sum,t)=>sum+t.net,0);put('pfAssets',names.length);put('pfUsed',money(used));put('pfRemaining',money(remaining));put('pfCapacity',money(capacity));put('pfPnl',money(pnl));sign('pfPnl',pnl);$('portfolioRows').innerHTML=names.length?names.map(p=>{const ts=day.filter(t=>t.pair===p),count=ts.length,budget=count*RISK_PER_TRADE,left=Math.max(0,MAX_ATTEMPTS_PER_ASSET-count)*RISK_PER_TRADE,net=ts.reduce((sum,t)=>sum+t.net,0),status=count>=MAX_ATTEMPTS_PER_ASSET?'Limit reached':`${MAX_ATTEMPTS_PER_ASSET-count} attempt(s) available`;return`<tr><td>${esc(p)}</td><td>${count}/4</td><td>${money(budget)}</td><td>${Math.max(0,4-count)}</td><td>${money(left)}</td><td class="${net>=0?'positive':'negative'}">${money(net)}</td><td>${status}</td></tr>`}).join(''):'<tr><td colspan="7">No trades recorded for this date.</td></tr>'}function renderRisk(a){
+function renderPortfolio(){const date=val('portfolioDate')||new Date().toLocaleDateString('en-CA');const day=all().filter(t=>t.date===date),names=[...new Set(day.map(t=>t.pair))].sort(),used=day.reduce((sum,t)=>sum+t.risk,0),capacity=names.length*MAX_ATTEMPTS_PER_ASSET*riskPerTrade,remaining=names.reduce((sum,p)=>sum+Math.max(0,MAX_ATTEMPTS_PER_ASSET-day.filter(t=>t.pair===p).length)*riskPerTrade,0),pnl=day.reduce((sum,t)=>sum+t.net,0),allNet=stats(all()).net,equity=initialCapital+allNet,ret=initialCapital>0?allNet/initialCapital*100:null;put('pfAssets',names.length);put('pfUsed',money(used));put('pfRemaining',money(remaining));put('pfCapacity',money(capacity));put('pfPnl',money(pnl));sign('pfPnl',pnl);put('pfRiskPerAttempt',money(riskPerTrade));put('pfMaxRiskAsset',money(riskPerTrade*MAX_ATTEMPTS_PER_ASSET));put('pfInitialCapital',money(initialCapital));put('pfCurrentEquity',money(equity));put('pfReturn',ret===null?'—':pct(ret));sign('pfReturn',ret||0);$('portfolioRows').innerHTML=names.length?names.map(p=>{const ts=day.filter(t=>t.pair===p),count=ts.length,budget=ts.reduce((sum,t)=>sum+t.risk,0),left=Math.max(0,MAX_ATTEMPTS_PER_ASSET-count)*riskPerTrade,net=ts.reduce((sum,t)=>sum+t.net,0),status=count>=MAX_ATTEMPTS_PER_ASSET?'Limit reached':`${MAX_ATTEMPTS_PER_ASSET-count} attempt(s) available`;return`<tr><td>${esc(p)}</td><td>${count}/4</td><td>${money(budget)}</td><td>${Math.max(0,4-count)}</td><td>${money(left)}</td><td class="${net>=0?'positive':'negative'}">${money(net)}</td><td>${status}</td></tr>`}).join(''):'<tr><td colspan="7">No trades recorded for this date.</td></tr>'}function renderRisk(a){
  let streak=0,max=0,eq=0,peak=0,dd=0;
  const ordered=[...a].sort((x,y)=>(x.date||'').localeCompare(y.date||'')||(x.created||0)-(y.created||0));
  const cumulative=[];
@@ -611,14 +631,14 @@ function renderPortfolio(){const date=val('portfolioDate')||new Date().toLocaleD
  }
  $('riskNotes').textContent=ordered.length?`Sample: ${st.n} trades · Win rate: ${pct(st.wr)} · Maximum observed drawdown: ${money(dd)}. Compare drawdown with actual account capital and daily loss limits.`:'Record trades to see risk observations.';
 }
-function val(id){return $(id).value.trim()}function preview(){const p=val('pair'),d=val('direction'),e=n(val('entry')),sl=n(val('sl')),rr=n(val('rr')),ps=pipSize(p),sg=d==='BUY'?1:-1,l=n(val('lots')),pv=n(val('pipval'));put('calcSL',e&&sl?(e-sg*sl*ps).toFixed(p.endsWith('JPY')?3:5):'—');put('calcTP',e&&sl&&rr?(e+sg*sl*ps*rr).toFixed(p.endsWith('JPY')?3:5):'—');put('calcRisk',sl&&l&&pv?money(sl*l*pv):'—');put('calcReward',sl&&l&&pv&&rr?money(sl*l*pv*rr):'—');put('suggestLots',sl&&pv?fmt(RISK_PER_TRADE/(sl*pv),4):'—')}
+function val(id){return $(id).value.trim()}function preview(){const p=val('pair'),d=val('direction'),e=n(val('entry')),sl=n(val('sl')),rr=n(val('rr')),ps=pipSize(p),sg=d==='BUY'?1:-1,l=n(val('lots')),pv=n(val('pipval'));put('calcSL',e&&sl?(e-sg*sl*ps).toFixed(p.endsWith('JPY')?3:5):'—');put('calcTP',e&&sl&&rr?(e+sg*sl*ps*rr).toFixed(p.endsWith('JPY')?3:5):'—');put('calcRisk',sl&&l&&pv?money(sl*l*pv):'—');put('calcReward',sl&&l&&pv&&rr?money(sl*l*pv*rr):'—');put('suggestLots',sl&&pv?fmt(riskPerTrade/(sl*pv),4):'—')}
 ['pair','direction','entry','sl','rr','lots','pipval'].forEach(id=>$(id).addEventListener('input',preview));
 function clearForm(){editId=null;['high','low','entry','exit','lots','pipval','notes'].forEach(id=>$(id).value='');$('cost').value='0';$('sl').value='10';$('rr').value='2';$('attempt').value='1';$('reason').value='Target';$('date').value=new Date().toLocaleDateString('en-CA');$('saveTrade').textContent='Save trade';put('formMsg','');preview()}
 function saveTrade(){const t={date:val('date'),pair:val('pair'),direction:val('direction'),attempt:n(val('attempt')),high:val('high')===''?'':n(val('high')),low:val('low')===''?'':n(val('low')),entry:n(val('entry')),exit:n(val('exit')),sl:n(val('sl')),rr:n(val('rr')),lots:n(val('lots')),pipValue:n(val('pipval')),cost:n(val('cost')),reason:val('reason'),notes:val('notes'),pipSize:pipSize(val('pair')),created:Date.now()};
 if(!t.date||!t.pair||!t.entry||!t.exit||!t.sl||!t.rr||!t.lots||!t.pipValue){put('formMsg','Fill date, pair, entry, exit, fixed SL, RR, lots and pip value.');return}
 if(!validInstrumentPrice(t.pair,t.entry)||!validInstrumentPrice(t.pair,t.exit)){put('formMsg',`${t.pair} price looks invalid. Check the selected asset and entry/exit prices. For example, 82,100 is a BTCUSDT-type price, not a valid EURUSD quote. Select the correct asset or enter the correct market price.`);return}if(t.sl<=0||t.rr<2||t.lots<=0||t.pipValue<=0||t.cost<0||t.attempt<1||t.attempt>4){put('formMsg','Check values: SL and lots positive, RR at least 2, attempts 1–4.');return}if(t.high!==''&&t.low!==''&&t.high<=t.low){put('formMsg','Setup high must be greater than setup low.');return}
 const plannedRisk=t.sl*t.pipValue*t.lots;
-if(plannedRisk>RISK_PER_TRADE+0.01){put('formMsg',`Planned risk is ${money(plannedRisk)}. Reduce lot size: maximum is $15 per attempt. Suggested lot size is ${fmt(RISK_PER_TRADE/(t.sl*t.pipValue),4)} before broker lot-step rounding.`);return}
+if(plannedRisk>riskPerTrade+0.01){put('formMsg',`Planned risk is ${money(plannedRisk)}. Reduce lot size: your maximum is ${money(riskPerTrade)} per attempt. Suggested lot size is ${fmt(riskPerTrade/(t.sl*t.pipValue),4)} before broker lot-step rounding.`);return}
 const sameAssetDay=trades.filter(x=>x.date===t.date&&x.pair===t.pair&&x.id!==editId);
 if(sameAssetDay.length>=MAX_ATTEMPTS_PER_ASSET){put('formMsg',`${t.pair} already has 4 attempts recorded for ${t.date}. No further attempt is allowed for this asset/day.`);return}
 if(sameAssetDay.some(x=>Number(x.attempt)===t.attempt)){put('formMsg',`Attempt ${t.attempt} is already recorded for ${t.pair} on ${t.date}. Use the next unused attempt number.`);return}
@@ -638,7 +658,7 @@ if(!save()){
 }
 clearForm();refresh();put('formMsg',editId?'Trade updated successfully.':'Trade saved successfully.');
 }
-$('saveTrade').addEventListener('click',saveTrade);$('clearForm').addEventListener('click',clearForm);$('search').addEventListener('input',renderJournal);
+$('saveSettings').addEventListener('click',saveSettings);$('saveTrade').addEventListener('click',saveTrade);$('clearForm').addEventListener('click',clearForm);$('search').addEventListener('input',renderJournal);
 $('tradeRows').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]'),del=e.target.closest('[data-del]');if(ed){const t=trades.find(x=>x.id===ed.dataset.edit);if(!t)return;editId=t.id;const map={date:'date',pair:'pair',direction:'direction',attempt:'attempt',high:'high',low:'low',entry:'entry',exit:'exit',sl:'sl',rr:'rr',lots:'lots',pipval:'pipValue',cost:'cost',reason:'reason',notes:'notes'};Object.entries(map).forEach(([id,k])=>$(id).value=t[k]??'');$('saveTrade').textContent='Update trade';preview();document.querySelector('[data-tab="journal"]').click();put('formMsg','Editing selected trade.')}if(del&&confirm('Delete this trade from this browser?')){trades=trades.filter(t=>t.id!==del.dataset.del);save();refresh()}});
 function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
 $('exportCSV').addEventListener('click',()=>{const rows=[['Date','Pair','Direction','Attempt','Setup High','Setup Low','Entry','Exit','SL Pips','RR','Lots','Pip Value USD/Lot','Costs USD','Pips','Net USD','R','Outcome','Notes'],...all().map(t=>[t.date,t.pair,t.direction,t.attempt,t.high,t.low,t.entry,t.exit,t.sl,t.rr,t.lots,t.pipValue,t.cost,t.pips,t.net,t.r,t.outcome,t.notes])];download('green_light_trades.csv',rows.map(r=>r.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv')});
@@ -655,7 +675,7 @@ try{
  $('date').value=new Date().toLocaleDateString('en-CA');
  $('portfolioDate').value=new Date().toLocaleDateString('en-CA');
  $('portfolioDate').addEventListener('change',renderPortfolio);
- load();refresh();preview();
+ loadSettings();load();refresh();preview();
 }catch(err){
  const box=document.createElement('div');
  box.style.cssText='margin:16px;padding:16px;border:1px solid #cf4652;border-radius:10px;background:#fff1f2;color:#8b1e2b;font:14px/1.6 Arial,sans-serif';
