@@ -410,7 +410,7 @@ button{min-height:40px}
  .section{font-size:clamp(11px,3.1vw,15px)}
  .hero h1{font-size:clamp(20px,6vw,24px)}
 }
-</style>
+\n/* Fix contrast for calculated trade levels in the dark theme */\n.calc-levels{background:linear-gradient(145deg,#14263b,#102033)!important;border:1px solid #35516d!important}\n.calc-levels .calc-title{display:block;color:#f0f6fd!important;font-size:14px;margin-bottom:8px}\n.calc-levels .muted{color:#a9bdd2!important}\n.calc-levels b:not(.calc-title){color:#f4f8ff!important;font-size:15px}\n</style>
 </head>
 <body>
 <div class="wrap" id="app">
@@ -539,11 +539,23 @@ button{min-height:40px}
    <div class="field"><label>Exit reason</label><select id="reason"><option>Target</option><option>Stop Loss</option><option>Manual exit</option><option>Time exit</option><option>Other</option></select></div>
   </div>
   <div style="margin-top:12px"><label>Notes (optional)</label><textarea id="notes" rows="2" placeholder="Market condition, news, observation..."></textarea></div>
-  <div class="panel" style="background:#f5f8fc;margin-top:13px"><b>Calculated trade levels</b><div class="grid g2" style="margin-top:9px">
+  <div class="panel calc-levels" style="margin-top:13px"><b class="calc-title">Calculated trade levels</b><div class="grid g2" style="margin-top:9px">
    <div><div class="muted">Stop Loss price</div><b id="calcSL">—</b></div><div><div class="muted">Target price</div><b id="calcTP">—</b></div><div><div class="muted">Planned risk</div><b id="calcRisk">—</b></div><div><div class="muted">Expected reward</div><b id="calcReward">—</b></div><div><div class="muted">Suggested lot size for selected risk</div><b id="suggestLots">—</b></div>
   </div><div class="muted" style="margin-top:8px">Your saved risk target is applied per attempt. Use the suggested lot size as a guide, round down to your broker lot step, and verify the pip/tick value. Actual P&amp;L is based on your entered exit price and transaction costs.</div></div>
   <div class="row"><button class="primary" id="saveTrade">Save trade</button><button id="clearForm">Clear form</button></div><div class="muted" id="formMsg" style="margin-top:8px" aria-live="polite"></div>
  </div>
+ <div class="panel"><div class="section">Strategy rules</div><div class="grid g2 strategy-rules">
+  <div><span class="muted">Daily setup time</span><b>08:00 IST</b></div>
+  <div><span class="muted">Chart timeframe</span><b>5-minute candles</b></div>
+  <div><span class="muted">Setup candles</span><b>One bullish (green) candle and one bearish (red) candle</b></div>
+  <div><span class="muted">Setup range</span><b>Mark the high and low of the two-candle setup</b></div>
+  <div><span class="muted">Entry trigger</span><b>Wick breakout beyond the setup high or low; do not wait for candle close</b></div>
+  <div><span class="muted">Stop loss</span><b>Fixed stop-loss distance</b></div>
+  <div><span class="muted">Risk : Reward</span><b>Minimum 1 : 2</b></div>
+  <div><span class="muted">Re-entry</span><b>Allowed, subject to the daily attempt limit</b></div>
+  <div><span class="muted">Maximum attempts</span><b>4 per asset per day</b></div>
+  <div><span class="muted">Risk per attempt</span><b>As configured in Money Management</b></div>
+ </div><p class="help">Apply the same setup and execution rules consistently across every asset. The app records trades manually; it does not execute or simulate candle signals.</p></div>
  <div class="panel"><div class="between"><div class="section">Trade history</div><div class="row"><input id="search" placeholder="Search pair/date..." style="width:170px"><button id="exportCSV">Export CSV</button></div></div><div class="scroll"><table><thead><tr><th>Date</th><th>Pair</th><th>Side</th><th>Attempt</th><th>Entry</th><th>Exit</th><th>Pips</th><th>Net USD</th><th>Result</th><th>Action</th></tr></thead><tbody id="tradeRows"><tr><td colspan="10">No trades yet</td></tr></tbody></table></div></div>
 </section>
 
